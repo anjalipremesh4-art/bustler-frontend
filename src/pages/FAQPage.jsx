@@ -1,53 +1,119 @@
 import { useState } from "react";
 
 const faqs = [
-  { category: "Payments", q: "How long do refunds take?", a: "Refunds are processed within 5–7 business days after approval." },
-  { category: "Payments", q: "Why was my payment declined?", a: "Check if your card details are correct and that your bank has not blocked the transaction." },
-  { category: "Freelancers", q: "What if my freelancer stops responding?", a: "Wait 48 hours then raise a ticket. If unresolved after 72 hours, use the Dispute Center." },
-  { category: "Freelancers", q: "Can I change my freelancer mid-project?", a: "Yes, contact support and we will help you transition to a new freelancer." },
-  { category: "Account", q: "How do I reset my password?", a: "Click Forgot Password on the login screen. A reset link will be sent to your email." },
-  { category: "Account", q: "How do I verify my account?", a: "Go to Profile Settings and click Verify Email. Check your inbox for the verification link." },
-  { category: "Disputes", q: "How long does a dispute take to resolve?", a: "Most disputes are reviewed within 48 hours. Complex cases may take up to 5 business days." },
-  { category: "Disputes", q: "What evidence should I upload for a dispute?", a: "Screenshots of your agreement, payment receipts, and any relevant conversation history." },
+  {
+    category: "Payments",
+    q: "I made a payment but the app crashed. What should I do?",
+    a: "Do not make the payment again. Check your email for a confirmation from Lily Happiness. If you received a confirmation, the payment was successful. Raise a ticket and we will sync your payment status in the app.",
+  },
+  {
+    category: "Payments",
+    q: "I am unable to make a payment in the app.",
+    a: "This is a known issue we are currently investigating. Please try again after some time or use a different payment method. If the problem persists, raise a support ticket.",
+  },
+  {
+    category: "Bookings",
+    q: "I booked a time slot but it is still showing as available.",
+    a: "This is a known bug that has been fixed. After booking, the time slot should be removed automatically. If you still see it available, please refresh the app.",
+  },
+  {
+    category: "Technical",
+    q: "The app crashes when I tap the plus menu.",
+    a: "This issue has been reported and our team is working on a fix. Try closing and reopening the app. If the crash continues, please raise a ticket with your device model.",
+  },
+  {
+    category: "Technical",
+    q: "My favourites categories are not updating immediately.",
+    a: "After adding favourite categories, close and reopen the app once. The categories will then update immediately.",
+  },
+  {
+    category: "Technical",
+    q: "Message notifications are not working.",
+    a: "Check that notifications are enabled for Bustler in your phone settings. Go to Settings then Apps then Bustler then Notifications and make sure they are turned on.",
+  },
+  {
+    category: "Account",
+    q: "I am getting an error when entering my last name during sign up.",
+    a: "If your last name is a single letter, please add a dot after it. This has been reported and a fix is being implemented.",
+  },
+  {
+    category: "Bustles",
+    q: "I edited my job category after it was verified but it did not go for review again.",
+    a: "Any change to a verified Bustle category should trigger a re-review. Please raise a ticket so we can manually send your Bustle for review.",
+  },
+  {
+    category: "Technical",
+    q: "The My Bustles page is opening order details when I refresh.",
+    a: "This is a known navigation bug. Avoid refreshing on the My Bustles page for now. Go back to the home screen and navigate back in instead.",
+  },
 ];
 
 function FAQPage() {
   const [search, setSearch] = useState("");
   const [openIndex, setOpenIndex] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("All");
 
-  const filtered = faqs.filter(f =>
-    f.q.toLowerCase().includes(search.toLowerCase()) ||
-    f.a.toLowerCase().includes(search.toLowerCase())
-  );
+  const categories = ["All", "Payments", "Bookings", "Technical", "Account", "Bustles"];
+
+  const filtered = faqs.filter(function(f) {
+    const matchesSearch =
+      f.q.toLowerCase().includes(search.toLowerCase()) ||
+      f.a.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = activeCategory === "All" || f.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="max-w-2xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-2">Help Center</h1>
-      <p className="text-gray-500 mb-6">Find answers to common questions</p>
+      <p className="text-gray-500 mb-6">Answers to the most common Bustler issues</p>
 
-      <div className="relative mb-8">
-        <span className="absolute left-4 top-3 text-gray-400">🔍</span>
-        <input
-          className="w-full border-2 border-gray-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-purple-500"
-          placeholder="Search for answers... try typing refund or dispute"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+      <input
+        className="w-full border-2 border-gray-200 rounded-xl py-3 px-4 mb-4 focus:outline-none focus:border-purple-500"
+        placeholder="Search... try typing payment or crash"
+        value={search}
+        onChange={function(e) {
+          setSearch(e.target.value);
+          setOpenIndex(null);
+        }}
+      />
+
+      <div className="flex gap-2 flex-wrap mb-6">
+        {categories.map(function(cat) {
+          return (
+            <button
+              key={cat}
+              onClick={function() {
+                setActiveCategory(cat);
+                setOpenIndex(null);
+              }}
+              className={
+                activeCategory === cat
+                  ? "px-3 py-1 rounded-full text-sm font-medium bg-purple-600 text-white"
+                  : "px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600"
+              }
+            >
+              {cat}
+            </button>
+          );
+        })}
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-500">No results found for "{search}"</p>
-          <p className="text-sm text-gray-400 mt-2">
-            Try different keywords or submit a ticket
-          </p>
+          <p className="text-gray-500">No results found</p>
+          <p className="text-sm text-gray-400 mt-2">Try different keywords or submit a ticket</p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((faq, i) => (
+      )}
+
+      <div className="space-y-3">
+        {filtered.map(function(faq, i) {
+          return (
             <div key={i} className="border-2 border-gray-100 rounded-xl overflow-hidden">
               <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                onClick={function() {
+                  setOpenIndex(openIndex === i ? null : i);
+                }}
                 className="w-full text-left p-4 flex justify-between items-center hover:bg-gray-50"
               >
                 <div>
@@ -62,21 +128,14 @@ function FAQPage() {
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
       <div className="mt-10 bg-purple-50 rounded-xl p-6 text-center">
         <p className="font-semibold text-purple-800">Still need help?</p>
-        <p className="text-sm text-purple-600 mt-1">
-          Our support team typically responds within 2–4 hours
-        </p>
-        <a
-          href="/"
-          className="inline-block mt-4 bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700"
-        >
-          Submit a Ticket
-        </a>
+        <p className="text-sm text-purple-600 mt-1">Our support team responds within 2 to 4 hours</p>
+       <a href="/ticket" className="inline-block mt-4 bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700">Submit a Ticket</a>
       </div>
     </div>
   );
