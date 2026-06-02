@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { adaptBustlerTickets, adaptPriority } from "../utils/adapter";
+import { useState, useEffect } from "react";
+import { adaptBustlerTickets, adaptPriority, getAllTickets } from "../utils/adapter";
 import { bustlerRawTickets } from "../utils/bustlerData";
 
 // Run real Bustler data through the adapter
-const tickets = adaptBustlerTickets(bustlerRawTickets);
+
 
 const statusColors = {
   "Open": "bg-yellow-100 text-yellow-700",
@@ -15,6 +15,15 @@ const statusColors = {
 function TicketTracker() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [filter, setFilter] = useState("All");
+  const [tickets, setTickets] = useState(adaptBustlerTickets(bustlerRawTickets));
+
+useEffect(function() {
+  getAllTickets().then(function(data) {
+    if (data && data.length > 0) {
+      setTickets(data);
+    }
+  });
+}, []);
 
   const filteredTickets = filter === "All"
     ? tickets

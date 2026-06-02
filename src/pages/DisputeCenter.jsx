@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createDispute } from "../utils/adapter";
 
 function DisputeCenter() {
   const [step, setStep] = useState(1);
@@ -59,7 +60,12 @@ function DisputeCenter() {
             </p>
           </div>
           <button
-            onClick={() => setStep(3)}
+            
+            onClick={function() {
+  createDispute(disputeType, description).then(function(result) {
+    setStep(3);
+  });
+}}
             disabled={description.length < 20}
             className="w-full mt-6 bg-purple-600 text-white py-4 rounded-xl font-semibold disabled:opacity-40 hover:bg-purple-700"
           >

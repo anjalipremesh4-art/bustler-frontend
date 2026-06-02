@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createTicket } from "../utils/adapter";
 
 const categories = [
   { label: "Payment Issue", icon: "💳" },
@@ -29,9 +30,10 @@ function TicketForm() {
   );
 
   function handleSubmit() {
-    const fakeId = "TKT-" + Math.floor(Math.random() * 9000 + 1000);
-    setTicketId(fakeId);
-    setStep(4);
+    createTicket(selectedCategory, description).then(function(result) {
+      setTicketId(result.ticketId);
+      setStep(4);
+    });
   }
 
   return (
