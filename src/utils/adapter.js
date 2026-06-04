@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://bustler-pulse.onrender.com";
 export async function getUserContext(userId) {
   try {
     const response = await fetch(BASE_URL + "/tickets/context/" + userId);
