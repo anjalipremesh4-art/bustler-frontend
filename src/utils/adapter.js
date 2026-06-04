@@ -1,4 +1,21 @@
 const BASE_URL = "http://127.0.0.1:8000";
+export async function getUserContext(userId) {
+  try {
+    const response = await fetch(BASE_URL + "/tickets/context/" + userId);
+    const data = await response.json();
+    return {
+      projectId: data.project_id || "proj-001",
+      paymentStatus: data.payment_status || "pending",
+      lastCategory: data.last_category || "",
+    };
+  } catch (error) {
+    return {
+      projectId: "proj-001",
+      paymentStatus: "pending",
+      lastCategory: "",
+    };
+  }
+}
 
 export async function createTicket(category, description) {
   try {

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createTicket } from "../utils/adapter";
+import { useState, useEffect } from "react";
+import { createTicket, getUserContext } from "../utils/adapter";
 
 const categories = [
   { label: "Payment Issue", icon: "💳" },
@@ -24,6 +24,16 @@ function TicketForm() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
+  const [context, setContext] = useState(null);
+
+useEffect(function() {
+  getUserContext("user-001").then(function(data) {
+    setContext(data);
+    if (data.lastCategory) {
+      setSelectedCategory(data.lastCategory);
+    }
+  });
+}, []);
 
   const matchedSuggestion = smartSuggestions.find(s =>
     description.toLowerCase().includes(s.keyword)
@@ -43,6 +53,25 @@ function TicketForm() {
         <div>
           <h1 className="text-2xl font-bold mb-2">What do you need help with?</h1>
           <p className="text-gray-500 mb-6">Select the category that best describes your issue</p>
+          {context && (
+  <div className="mt-4 bg-gray-50 border-2 border-gray-200 rounded-xl p-4 mb-6">
+    <p className="text-xs text-gray-400 font-semibold mb-2">Context Auto-Attached</p>
+    <div className="grid grid-cols-3 gap-3">
+      <div className="bg-white rounded-lg p-3">
+        <p className="text-xs text-gray-400">Project ID</p>
+        <p className="font-semibold text-gray-800 text-sm mt-1">{context.projectId}</p>
+      </div>
+      <div className="bg-white rounded-lg p-3">
+        <p className="text-xs text-gray-400">Payment Status</p>
+        <p className="font-semibold text-gray-800 text-sm mt-1">{context.paymentStatus}</p>
+      </div>
+      <div className="bg-white rounded-lg p-3">
+        <p className="text-xs text-gray-400">Last Category</p>
+        <p className="font-semibold text-gray-800 text-sm mt-1">{context.lastCategory || "None"}</p>
+      </div>
+    </div>
+  </div>
+)}
           <div className="grid grid-cols-3 gap-4">
             {categories.map((cat) => (
               <button
