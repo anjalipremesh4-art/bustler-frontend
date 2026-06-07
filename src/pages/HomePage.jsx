@@ -2,181 +2,91 @@ import { useNavigate } from "react-router-dom";
 
 function HomePage() {
   const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-gray-50">
-
-      {/* Hero section */}
-      <div className="bg-gradient-to-br from-purple-700 to-purple-900 text-white py-20 px-8 text-center">
+    <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
+      <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white py-20 px-8 text-center">
         <div className="max-w-3xl mx-auto">
-          <div className="text-6xl mb-6">⚡</div>
-          <h1 className="text-5xl font-bold leading-tight">
-            Bustler Support Center
-          </h1>
-          <p className="text-purple-200 mt-4 text-xl">
-            AI-powered support that gets you help faster, smarter, and transparently.
-          </p>
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
-            <button
-              onClick={() => navigate("/ticket")}
-              className="bg-white text-purple-700 px-8 py-4 rounded-xl text-lg font-bold hover:bg-purple-50 transition-all shadow-lg"
-            >
-              🎫 Submit a Ticket
-            </button>
-            <button
-              onClick={() => navigate("/tracker")}
-              className="border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-purple-800 transition-all"
-            >
-              🔍 Track My Issue
-            </button>
+          <h1 className="text-5xl font-bold">Bustler Support Center</h1>
+          <p className="mt-4 text-xl" style={{color:"#B2DFDB"}}>Get help instantly. Track every issue. Resolve disputes fairly.</p>
+          <div className="flex gap-4 justify-center mt-10">
+            <button onClick={function(){navigate("/ticket");}} className="bg-white font-bold px-8 py-4 rounded-xl text-lg" style={{color:"#00897B"}}>Submit a Ticket</button>
+            <button onClick={function(){navigate("/tracker");}} className="font-semibold px-8 py-4 rounded-xl text-lg border-2 border-white text-white">Track My Issue</button>
           </div>
         </div>
       </div>
-
-      {/* Stats bar */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-3xl mx-auto grid grid-cols-3 divide-x divide-gray-100">
-          <div className="py-6 text-center">
-            <p className="text-3xl font-bold text-purple-700">9</p>
-            <p className="text-sm text-gray-500 mt-1">Issues Tracked</p>
-          </div>
-          <div className="py-6 text-center">
-            <p className="text-3xl font-bold text-green-600">3</p>
-            <p className="text-sm text-gray-500 mt-1">Resolved</p>
-          </div>
-          <div className="py-6 text-center">
-            <p className="text-3xl font-bold text-red-500">4</p>
-            <p className="text-sm text-gray-500 mt-1">Critical P1 Issues</p>
-          </div>
+        <div className="max-w-4xl mx-auto grid grid-cols-3 divide-x">
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#00897B"}}>9</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Issues Tracked</p></div>
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#43A047"}}>3</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Resolved</p></div>
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#E53935"}}>4</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Critical P1</p></div>
         </div>
       </div>
-
-      {/* Main content */}
-      <div className="max-w-3xl mx-auto px-8 py-12">
-
-        {/* System status */}
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 mb-10">
-          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+      <div className="max-w-4xl mx-auto px-8 py-12">
+        <div className="rounded-xl p-4 flex items-center gap-3 mb-10 border" style={{backgroundColor:"#E8F5E9",borderColor:"#A5D6A7"}}>
+          <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor:"#43A047"}}></div>
           <div>
-            <p className="text-green-800 font-semibold text-sm">All Systems Operational</p>
-            <p className="text-green-600 text-xs mt-0.5">Support team is active — avg response time 2 hours</p>
+            <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>All Systems Operational</p>
+            <p className="text-xs mt-1" style={{color:"#388E3C"}}>Support team is active — average response time 2 hours</p>
           </div>
         </div>
-
-        {/* Quick action cards */}
-        <h2 className="text-xl font-bold text-gray-800 mb-4">How can we help you?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-
-          <button
-            onClick={() => navigate("/ticket")}
-            className="bg-white border-2 border-gray-100 rounded-xl p-6 text-left hover:border-purple-400 hover:bg-purple-50 transition-all group"
-          >
-            <div className="text-3xl mb-3">🎫</div>
-            <h3 className="font-bold text-gray-800 group-hover:text-purple-700">Submit a Support Ticket</h3>
-            <p className="text-gray-500 text-sm mt-1">Report a bug, payment issue, or account problem</p>
+        <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>How can we help you?</h2>
+        <div className="grid grid-cols-2 gap-4 mb-12">
+          <button onClick={function(){navigate("/ticket");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
+            <div className="text-3xl mb-2">🎫</div>
+            <p className="font-bold" style={{color:"#212121"}}>Submit a Support Ticket</p>
+            <p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Report a bug, payment issue, or account problem</p>
           </button>
-
-          <button
-            onClick={() => navigate("/tracker")}
-            className="bg-white border-2 border-gray-100 rounded-xl p-6 text-left hover:border-purple-400 hover:bg-purple-50 transition-all group"
-          >
-            <div className="text-3xl mb-3">🔍</div>
-            <h3 className="font-bold text-gray-800 group-hover:text-purple-700">Track My Issue</h3>
-            <p className="text-gray-500 text-sm mt-1">Check the status and progress of your ticket</p>
+          <button onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
+            <div className="text-3xl mb-2">🔍</div>
+            <p className="font-bold" style={{color:"#212121"}}>Track My Issue</p>
+            <p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Check the status and progress of your ticket</p>
           </button>
-
-          <button
-            onClick={() => navigate("/dispute")}
-            className="bg-white border-2 border-gray-100 rounded-xl p-6 text-left hover:border-purple-400 hover:bg-purple-50 transition-all group"
-          >
-            <div className="text-3xl mb-3">⚖️</div>
-            <h3 className="font-bold text-gray-800 group-hover:text-purple-700">Raise a Dispute</h3>
-            <p className="text-gray-500 text-sm mt-1">Resolve conflicts with freelancers or clients</p>
+          <button onClick={function(){navigate("/dispute");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
+            <div className="text-3xl mb-2">⚖️</div>
+            <p className="font-bold" style={{color:"#212121"}}>Raise a Dispute</p>
+            <p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Resolve conflicts with freelancers or clients</p>
           </button>
-
-          <button
-            onClick={() => navigate("/faq")}
-            className="bg-white border-2 border-gray-100 rounded-xl p-6 text-left hover:border-purple-400 hover:bg-purple-50 transition-all group"
-          >
-            <div className="text-3xl mb-3">💡</div>
-            <h3 className="font-bold text-gray-800 group-hover:text-purple-700">Help Center</h3>
-            <p className="text-gray-500 text-sm mt-1">Find instant answers to common questions</p>
+          <button onClick={function(){navigate("/faq");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
+            <div className="text-3xl mb-2">💡</div>
+            <p className="font-bold" style={{color:"#212121"}}>Help Center</p>
+            <p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Find instant answers to common questions</p>
           </button>
-
         </div>
-
-        {/* How it works */}
-        <h2 className="text-xl font-bold text-gray-800 mb-6">How Bustler Pulse works</h2>
-        <div className="bg-white rounded-xl border-2 border-gray-100 overflow-hidden">
-
-          <div className="flex items-start gap-4 p-5 border-b border-gray-100">
-            <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center flex-shrink-0">1</div>
-            <div>
-              <p className="font-semibold text-gray-800">You submit your issue</p>
-              <p className="text-gray-500 text-sm mt-0.5">Select a category and describe your problem in a few words</p>
-            </div>
+        <h2 className="text-xl font-bold mb-6" style={{color:"#212121"}}>How Bustler Pulse works</h2>
+        <div className="bg-white rounded-xl border-2 overflow-hidden mb-12" style={{borderColor:"#EEEEEE"}}>
+          <div className="flex items-start gap-4 p-5 border-b" style={{borderColor:"#EEEEEE"}}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#E0F2F1",color:"#00897B"}}>1</div>
+            <div><p className="font-semibold" style={{color:"#212121"}}>You submit your issue</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Select a category and describe your problem</p></div>
           </div>
-
-          <div className="flex items-start gap-4 p-5 border-b border-gray-100">
-            <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center flex-shrink-0">2</div>
-            <div>
-              <p className="font-semibold text-gray-800">AI analyzes it instantly</p>
-              <p className="text-gray-500 text-sm mt-0.5">Our system categorizes, scores urgency, and suggests a solution in seconds</p>
-            </div>
+          <div className="flex items-start gap-4 p-5 border-b" style={{borderColor:"#EEEEEE"}}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#E3F2FD",color:"#1565C0"}}>2</div>
+            <div><p className="font-semibold" style={{color:"#212121"}}>AI analyzes it instantly</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>System categorizes and scores urgency in seconds</p></div>
           </div>
-
-          <div className="flex items-start gap-4 p-5 border-b border-gray-100">
-            <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center flex-shrink-0">3</div>
-            <div>
-              <p className="font-semibold text-gray-800">Agent picks it up</p>
-              <p className="text-gray-500 text-sm mt-0.5">A support agent reviews the AI analysis and responds to your ticket</p>
-            </div>
+          <div className="flex items-start gap-4 p-5 border-b" style={{borderColor:"#EEEEEE"}}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#FFF3E0",color:"#E65100"}}>3</div>
+            <div><p className="font-semibold" style={{color:"#212121"}}>Agent picks it up</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Support agent reviews the AI analysis and responds</p></div>
           </div>
-
-          <div className="flex items-start gap-4 p-5">
-            <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 font-bold flex items-center justify-center flex-shrink-0">4</div>
-            <div>
-              <p className="font-semibold text-gray-800">Issue resolved</p>
-              <p className="text-gray-500 text-sm mt-0.5">You get notified, rate the experience, and earn a Supported by Bustler badge</p>
-            </div>
+          <div className="flex items-start gap-4 p-5" style={{borderColor:"#EEEEEE"}}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#E8F5E9",color:"#2E7D32"}}>4</div>
+            <div><p className="font-semibold" style={{color:"#212121"}}>Issue resolved</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>You get notified and earn a Supported by Bustler badge</p></div>
           </div>
-
         </div>
-
-        {/* Recent activity */}
-        <h2 className="text-xl font-bold text-gray-800 mt-12 mb-4">Recent Activity</h2>
+        <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>Recent Activity</h2>
         <div className="space-y-3">
-          {[
-            { id: "TKT-1000", text: "App crashed after selecting + menu", status: "In Progress", color: "bg-blue-100 text-blue-700" },
-            { id: "TKT-1002", text: "Unable to make payment", status: "On Hold", color: "bg-orange-100 text-orange-700" },
-            { id: "TKT-1007", text: "Last name validation error on sign up", status: "Resolved", color: "bg-green-100 text-green-700" },
-          ].map(function(item) {
-            return (
-              <div
-                key={item.id}
-                onClick={() => navigate("/tracker")}
-                className="bg-white border-2 border-gray-100 rounded-xl p-4 flex justify-between items-center cursor-pointer hover:border-purple-300 hover:bg-purple-50 transition-all"
-              >
-                <div>
-                  <p className="text-xs text-purple-600 font-semibold">{item.id}</p>
-                  <p className="text-sm text-gray-700 mt-0.5">{item.text}</p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-4 ${item.color}`}>
-                  {item.status}
-                </span>
-              </div>
-            );
-          })}
-          <button
-            onClick={() => navigate("/tracker")}
-            className="w-full text-center text-purple-600 text-sm py-2 hover:underline"
-          >
-            View all 9 issues →
-          </button>
+          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
+            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1000</p><p className="text-sm mt-1" style={{color:"#424242"}}>App crashed after selecting plus menu</p></div>
+            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#E3F2FD",color:"#1565C0"}}>In Progress</span>
+          </div>
+          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
+            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1003</p><p className="text-sm mt-1" style={{color:"#424242"}}>Unable to make payment in the app</p></div>
+            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#FFF3E0",color:"#E65100"}}>On Hold</span>
+          </div>
+          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
+            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1007</p><p className="text-sm mt-1" style={{color:"#424242"}}>Last name validation error on sign up</p></div>
+            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#E8F5E9",color:"#2E7D32"}}>Resolved</span>
+          </div>
+          <button onClick={function(){navigate("/tracker");}} className="w-full text-center text-sm py-2 font-medium" style={{color:"#00897B"}}>View all 9 issues</button>
         </div>
-
       </div>
     </div>
   );
