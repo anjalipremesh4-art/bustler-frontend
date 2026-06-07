@@ -2,171 +2,290 @@ import { useState, useEffect } from "react";
 import { createTicket, getUserContext } from "../utils/adapter";
 
 const categories = [
-  { label: "Payment Issue", icon: "💳" },
-  { label: "Refund Delay", icon: "⏳" },
-  { label: "Freelancer Problem", icon: "👤" },
-  { label: "Technical Bug", icon: "🐛" },
-  { label: "Account Issue", icon: "🔐" },
-  { label: "Other", icon: "❓" },
+  { label: "Payment Issue", icon: "💳", desc: "Refunds, failed payments, billing" },
+  { label: "Technical Bug", icon: "🐛", desc: "App crashes, errors, glitches" },
+  { label: "Freelancer Problem", icon: "👤", desc: "Unresponsive, quality issues" },
+  { label: "Booking Issue", icon: "📅", desc: "Time slots, scheduling problems" },
+  { label: "Account Issue", icon: "🔐", desc: "Login, signup, profile problems" },
+  { label: "Other", icon: "❓", desc: "Something else entirely" },
 ];
 
 const smartSuggestions = [
-  { keyword: "refund", tip: "Refunds usually take 5–7 business days to process." },
+  { keyword: "refund", tip: "Refunds usually take 5 to 7 business days to process." },
   { keyword: "payment", tip: "Check if your payment method is verified in account settings." },
+  { keyword: "crash", tip: "Try closing and reopening the app. This fixes most crash issues." },
   { keyword: "freelancer", tip: "Try sending a direct message to the freelancer first." },
-  { keyword: "bug", tip: "Try clearing your browser cache and reloading the page." },
-  { keyword: "login", tip: "Try the Forgot Password option on the login page." },
-  { keyword: "account", tip: "Make sure your email is verified in your profile settings." },
+  { keyword: "login", tip: "Try the Forgot Password option on the login screen." },
+  { keyword: "notification", tip: "Check that notifications are enabled in your phone settings." },
+  { keyword: "booking", tip: "After booking, refresh the app to see updated time slots." },
 ];
 
 function TicketForm() {
   const [step, setStep] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selected, setSelected] = useState("");
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [context, setContext] = useState(null);
 
-useEffect(function() {
-  getUserContext("user-001").then(function(data) {
-    setContext(data);
-    if (data.lastCategory) {
-      setSelectedCategory(data.lastCategory);
-    }
-  });
-}, []);
+  useEffect(function() {
+    getUserContext("user-001").then(function(data) {
+      setContext(data);
+      if (data && data.lastCategory) {
+        setSelected(data.lastCategory);
+      }
+    });
+  }, []);
 
-  const matchedSuggestion = smartSuggestions.find(s =>
-    description.toLowerCase().includes(s.keyword)
-  );
+  const match = smartSuggestions.find(function(s) {
+    return description.toLowerCase().includes(s.keyword);
+  });
 
   function handleSubmit() {
-    createTicket(selectedCategory, description).then(function(result) {
+    setIsSubmitting(true);
+    createTicket(selected, description).then(function(result) {
       setTicketId(result.ticketId);
+      setIsSubmitting(false);
       setStep(4);
     });
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
+    <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
 
-      {step === 1 && (
-        <div>
-          <h1 className="text-2xl font-bold mb-2">What do you need help with?</h1>
-          <p className="text-gray-500 mb-6">Select the category that best describes your issue</p>
-          {context && (
-  <div className="mt-4 bg-gray-50 border-2 border-gray-200 rounded-xl p-4 mb-6">
-    <p className="text-xs text-gray-400 font-semibold mb-2">Context Auto-Attached</p>
-    <div className="grid grid-cols-3 gap-3">
-      <div className="bg-white rounded-lg p-3">
-        <p className="text-xs text-gray-400">Project ID</p>
-        <p className="font-semibold text-gray-800 text-sm mt-1">{context.projectId}</p>
+      <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white px-8 py-6">
+        <h1 className="text-2xl font-bold">Submit a Support Ticket</h1>
+        <p className="text-sm mt-1" style={{color:"#B2DFDB"}}>Our AI will analyze your issue instantly</p>
       </div>
-      <div className="bg-white rounded-lg p-3">
-        <p className="text-xs text-gray-400">Payment Status</p>
-        <p className="font-semibold text-gray-800 text-sm mt-1">{context.paymentStatus}</p>
-      </div>
-      <div className="bg-white rounded-lg p-3">
-        <p className="text-xs text-gray-400">Last Category</p>
-        <p className="font-semibold text-gray-800 text-sm mt-1">{context.lastCategory || "None"}</p>
-      </div>
-    </div>
-  </div>
-)}
-          <div className="grid grid-cols-3 gap-4">
-            {categories.map((cat) => (
-              <button
-                key={cat.label}
-                onClick={() => {
-                  setSelectedCategory(cat.label);
-                  setStep(2);
-                }}
-                className="p-4 rounded-xl border-2 border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition-all text-center"
-              >
-                <div className="text-3xl mb-2">{cat.icon}</div>
-                <div className="text-sm font-medium">{cat.label}</div>
-              </button>
-            ))}
+
+      {step < 4 && (
+        <div className="bg-white border-b" style={{borderColor:"#EEEEEE"}}>
+          <div className="max-w-2xl mx-auto px-8 py-3 flex items-center gap-3">
+            {["Category","Describe","Review"].map(function(label, i) {
+              const stepNum = i + 1;
+              return (
+                <div key={label} className="flex items-center gap-2">
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                    style={{
+                      backgroundColor: step > stepNum ? "#43A047" : step === stepNum ? "#00897B" : "#EEEEEE",
+                      color: step >= stepNum ? "white" : "#9E9E9E"
+                    }}
+                  >
+                    {step > stepNum ? "✓" : stepNum}
+                  </div>
+                  <span className="text-sm" style={{color: step === stepNum ? "#00897B" : "#9E9E9E", fontWeight: step === stepNum ? "600" : "400"}}>
+                    {label}
+                  </span>
+                  {i < 2 && <div className="h-0.5 w-8" style={{backgroundColor: step > stepNum ? "#43A047" : "#EEEEEE"}} />}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {step === 2 && (
-        <div>
-          <button onClick={() => setStep(1)} className="text-purple-600 mb-4">← Back</button>
-          <h1 className="text-2xl font-bold mb-2">Describe your issue</h1>
-          <p className="text-gray-500 mb-2">
-            Category: <span className="font-semibold text-purple-700">{selectedCategory}</span>
-          </p>
-          <textarea
-            className="w-full border-2 border-gray-200 rounded-xl p-4 h-40 mt-4 focus:outline-none focus:border-purple-500"
-            placeholder="Describe your issue... try typing refund or payment"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          {matchedSuggestion && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-3 flex gap-3">
-              <span className="text-xl">💡</span>
-              <div>
-                <p className="font-semibold text-blue-800 text-sm">Quick suggestion</p>
-                <p className="text-blue-700 text-sm mt-1">{matchedSuggestion.tip}</p>
+      <div className="max-w-2xl mx-auto p-8">
+
+        {step === 1 && (
+          <div>
+            <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>What do you need help with?</h2>
+            <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Select the category that best describes your issue</p>
+
+            {context && (
+              <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+                <p className="text-xs font-semibold mb-2" style={{color:"#00695C"}}>📎 Context Auto-Attached</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-white rounded-lg p-3">
+                    <p className="text-xs" style={{color:"#9E9E9E"}}>Project ID</p>
+                    <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{context.projectId}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <p className="text-xs" style={{color:"#9E9E9E"}}>Payment Status</p>
+                    <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{context.paymentStatus}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <p className="text-xs" style={{color:"#9E9E9E"}}>Last Category</p>
+                    <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{context.lastCategory || "None"}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {categories.map(function(cat) {
+                return (
+                  <button
+                    key={cat.label}
+                    onClick={function() { setSelected(cat.label); setStep(2); }}
+                    className="bg-white border-2 rounded-xl p-4 text-left transition-all"
+                    style={{borderColor: selected === cat.label ? "#00897B" : "#EEEEEE"}}
+                    onMouseEnter={function(e) { e.currentTarget.style.borderColor="#00897B"; e.currentTarget.style.backgroundColor="#E0F2F1"; }}
+                    onMouseLeave={function(e) { e.currentTarget.style.borderColor=selected===cat.label?"#00897B":"#EEEEEE"; e.currentTarget.style.backgroundColor="white"; }}
+                  >
+                    <div className="text-2xl mb-2">{cat.icon}</div>
+                    <p className="font-semibold text-sm" style={{color:"#212121"}}>{cat.label}</p>
+                    <p className="text-xs mt-1" style={{color:"#9E9E9E"}}>{cat.desc}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-xl p-4 border" style={{backgroundColor:"#E3F2FD", borderColor:"#90CAF9"}}>
+              <p className="text-sm font-semibold" style={{color:"#1565C0"}}>💡 Check the Help Center first</p>
+              <p className="text-xs mt-1" style={{color:"#1976D2"}}>Your question might already be answered in our FAQ.</p>
+              <a href="/faq" className="text-xs font-semibold underline mt-1 inline-block" style={{color:"#1565C0"}}>Browse Help Center</a>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <button onClick={function() { setStep(1); }} className="text-sm mb-4 font-medium" style={{color:"#00897B"}}>
+              Back
+            </button>
+            <div className="rounded-xl p-3 mb-4 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+              <p className="text-xs font-semibold" style={{color:"#00695C"}}>Selected category</p>
+              <p className="font-bold text-sm mt-0.5" style={{color:"#00897B"}}>{selected}</p>
+            </div>
+            <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Describe your issue</h2>
+            <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Be as specific as possible — include dates, amounts, or error messages</p>
+            <textarea
+              className="w-full border-2 rounded-xl p-4 h-40 text-sm resize-none focus:outline-none"
+              style={{borderColor:"#EEEEEE", color:"#212121"}}
+              placeholder="Example: My refund was not received after 7 days..."
+              value={description}
+              onChange={function(e) { setDescription(e.target.value); }}
+              onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
+              onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
+            />
+            {match && (
+              <div className="rounded-xl p-4 mt-3 border" style={{backgroundColor:"#E8F5E9", borderColor:"#A5D6A7"}}>
+                <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>⚡ AI Quick Suggestion</p>
+                <p className="text-sm mt-1" style={{color:"#388E3C"}}>{match.tip}</p>
+              </div>
+            )}
+            <div className="flex justify-between items-center mt-4">
+              <span className="text-xs" style={{color:"#9E9E9E"}}>{description.length} characters</span>
+              <button
+                onClick={function() { setStep(3); }}
+                disabled={description.length < 10}
+                className="text-white px-6 py-2 rounded-xl text-sm font-semibold transition-all"
+                style={{backgroundColor: description.length < 10 ? "#BDBDBD" : "#00897B"}}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <button onClick={function() { setStep(2); }} className="text-sm mb-4 font-medium" style={{color:"#00897B"}}>
+              Back
+            </button>
+            <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Review your ticket</h2>
+            <p className="text-sm mb-6" style={{color:"#9E9E9E"}}>Make sure everything looks correct</p>
+            <div className="bg-white border-2 rounded-xl overflow-hidden mb-6" style={{borderColor:"#EEEEEE"}}>
+              <div className="p-4 border-b" style={{borderColor:"#EEEEEE"}}>
+                <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>CATEGORY</p>
+                <p className="font-semibold mt-1" style={{color:"#212121"}}>{selected}</p>
+              </div>
+              <div className="p-4">
+                <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>DESCRIPTION</p>
+                <p className="text-sm mt-1" style={{color:"#212121"}}>{description}</p>
               </div>
             </div>
-          )}
-          <div className="flex justify-between mt-6">
-            <span className="text-sm text-gray-400">{description.length} characters</span>
+            <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+              <p className="font-semibold text-sm" style={{color:"#00695C"}}>⚡ AI Triage Preview</p>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="bg-white rounded-lg p-3">
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Detected Category</p>
+                  <p className="font-semibold text-sm mt-1" style={{color:"#212121"}}>{selected}</p>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Estimated Response</p>
+                  <p className="font-semibold text-sm mt-1" style={{color:"#212121"}}>2 to 4 hours</p>
+                </div>
+              </div>
+            </div>
             <button
-              onClick={() => setStep(3)}
-              disabled={description.length < 10}
-              className="bg-purple-600 text-white px-8 py-3 rounded-xl disabled:opacity-40 hover:bg-purple-700"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full text-white py-4 rounded-xl font-bold transition-all"
+              style={{backgroundColor: isSubmitting ? "#BDBDBD" : "#00897B"}}
             >
-              Continue →
+              {isSubmitting ? "Analyzing your issue..." : "Submit Ticket"}
             </button>
+            {isSubmitting && (
+              <div className="mt-4 space-y-2">
+                {["Reading your issue...","Categorizing issue type...","Scoring urgency level...","Generating ticket ID..."].map(function(msg, i) {
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-sm" style={{color:"#9E9E9E"}}>
+                      <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{borderColor:"#00897B"}}></div>
+                      {msg}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {step === 3 && (
-        <div>
-          <button onClick={() => setStep(2)} className="text-purple-600 mb-4">← Back</button>
-          <h1 className="text-2xl font-bold mb-6">Review your ticket</h1>
-          <div className="bg-gray-50 rounded-xl p-6 space-y-4">
-            <div>
-              <p className="text-sm text-gray-500">Category</p>
-              <p className="font-semibold">{selectedCategory}</p>
+        {step === 4 && (
+          <div className="text-center py-8">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{backgroundColor:"#E0F2F1"}}>
+              <span className="text-4xl">✅</span>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Description</p>
-              <p className="text-gray-800">{description}</p>
+            <h2 className="text-2xl font-bold" style={{color:"#212121"}}>Ticket Submitted!</h2>
+            <p className="mt-2" style={{color:"#9E9E9E"}}>Your issue has been received and analyzed</p>
+            <div className="rounded-xl p-4 mt-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+              <p className="text-xs font-semibold" style={{color:"#00695C"}}>YOUR TICKET ID</p>
+              <p className="text-3xl font-bold mt-1" style={{color:"#00897B"}}>{ticketId}</p>
+            </div>
+            <div className="bg-white border-2 rounded-xl mt-4 text-left overflow-hidden" style={{borderColor:"#EEEEEE"}}>
+              <div className="p-4 border-b flex items-center gap-3" style={{borderColor:"#EEEEEE"}}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{backgroundColor:"#E8F5E9", color:"#2E7D32"}}>1</div>
+                <div>
+                  <p className="font-semibold text-sm" style={{color:"#212121"}}>Ticket received</p>
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Just now</p>
+                </div>
+              </div>
+              <div className="p-4 border-b flex items-center gap-3" style={{borderColor:"#EEEEEE"}}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{backgroundColor:"#E8F5E9", color:"#2E7D32"}}>2</div>
+                <div>
+                  <p className="font-semibold text-sm" style={{color:"#212121"}}>AI analysis complete</p>
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Category: {selected}</p>
+                </div>
+              </div>
+              <div className="p-4 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{backgroundColor:"#E0F2F1", color:"#00897B"}}>3</div>
+                <div>
+                  <p className="font-semibold text-sm" style={{color:"#212121"}}>Agent will respond</p>
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Expected within 2 to 4 hours</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={function() { setStep(1); setDescription(""); setSelected(""); }}
+                className="flex-1 border-2 py-3 rounded-xl font-semibold text-sm"
+                style={{borderColor:"#00897B", color:"#00897B"}}
+              >
+                Submit Another
+              </button>
+              
+               <a href="/tracker"
+                className="flex-1 text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center"
+                style={{backgroundColor:"#00897B"}}
+              >
+                Track My Ticket
+              </a>
             </div>
           </div>
-          <button
-            onClick={handleSubmit}
-            className="w-full mt-6 bg-purple-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-purple-700"
-          >
-            Submit Ticket
-          </button>
-        </div>
-      )}
+        )}
 
-      {step === 4 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-2xl font-bold">Ticket Submitted!</h1>
-          <p className="text-gray-500 mt-2">Your ticket ID is</p>
-          <p className="text-3xl font-bold text-purple-600 mt-1">{ticketId}</p>
-          <div className="bg-purple-50 rounded-xl p-4 mt-6 text-left">
-            <p className="text-sm font-semibold text-purple-800">What happens next?</p>
-            <p className="text-sm text-purple-700 mt-1">Our AI has analyzed your issue. An agent will respond within 2–4 hours.</p>
-          </div>
-          <button
-            onClick={() => { setStep(1); setDescription(""); setSelectedCategory(""); }}
-            className="mt-6 text-purple-600 underline"
-          >
-            Submit another ticket
-          </button>
-        </div>
-      )}
-
+      </div>
     </div>
   );
 }
