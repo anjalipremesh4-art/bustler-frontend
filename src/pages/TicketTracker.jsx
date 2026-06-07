@@ -2,170 +2,202 @@ import { useState, useEffect } from "react";
 import { adaptBustlerTickets, adaptPriority, getAllTickets } from "../utils/adapter";
 import { bustlerRawTickets } from "../utils/bustlerData";
 
-// Run real Bustler data through the adapter
+const allTickets = adaptBustlerTickets(bustlerRawTickets);
 
-
-const statusColors = {
-  "Open": "bg-yellow-100 text-yellow-700",
-  "In Progress": "bg-blue-100 text-blue-700",
-  "On Hold": "bg-orange-100 text-orange-700",
-  "Resolved": "bg-green-100 text-green-700",
+const statusStyles = {
+  "Open": {backgroundColor:"#FFF3E0",color:"#E65100"},
+  "In Progress": {backgroundColor:"#E3F2FD",color:"#1565C0"},
+  "On Hold": {backgroundColor:"#FFF3E0",color:"#E65100"},
+  "Resolved": {backgroundColor:"#E8F5E9",color:"#2E7D32"},
 };
 
 function TicketTracker() {
+  const [tickets, setTickets] = useState(allTickets);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [filter, setFilter] = useState("All");
-  const [tickets, setTickets] = useState(adaptBustlerTickets(bustlerRawTickets));
+  const [search, setSearch] = useState("");
 
-useEffect(function() {
-  getAllTickets().then(function(data) {
-    if (data && data.length > 0) {
-      setTickets(data);
-    }
+  useEffect(function() {
+    getAllTickets().then(function(data) {
+      if (data && data.length > 0) {
+        setTickets(data);
+      }
+    });
+  }, []);
+
+  const filteredTickets = tickets.filter(function(t) {
+    const matchesFilter = filter === "All" || t.status === filter;
+    const matchesSearch =
+      t.description.toLowerCase().includes(search.toLowerCase()) ||
+      t.id.toLowerCase().includes(search.toLowerCase()) ||
+      t.category.toLowerCase().includes(search.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
-}, []);
-
-  const filteredTickets = filter === "All"
-    ? tickets
-    : tickets.filter(t => t.status === filter);
 
   if (selectedTicket) {
     const priority = adaptPriority(selectedTicket.priority);
     return (
-      <div className="max-w-2xl mx-auto p-8">
-        <button
-          onClick={() => setSelectedTicket(null)}
-          className="text-purple-600 mb-6"
-        >
-          ← Back to all tickets
-        </button>
-
-        {/* Ticket header */}
-        <div className="flex justify-between items-start flex-wrap gap-2">
-          <h1 className="text-2xl font-bold">{selectedTicket.id}</h1>
-          <div className="flex gap-2">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[selectedTicket.status]}`}>
-              {selectedTicket.status}
-            </span>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${priority.color}`}>
-              {priority.label}
-            </span>
-          </div>
-        </div>
-
-        {/* Ticket details */}
-        <div className="mt-4 space-y-2 text-sm text-gray-500">
-          <p>📅 Reported: {selectedTicket.date}</p>
-          <p>👤 Reported by: {selectedTicket.reportedBy}</p>
-          <p>📱 Platform: {selectedTicket.platform} · {selectedTicket.device}</p>
-          <p>🏷️ Category: {selectedTicket.category}</p>
-        </div>
-
-        {/* Bug description */}
-        <div className="mt-4 bg-gray-50 rounded-xl p-4">
-          <p className="text-sm font-semibold text-gray-600 mb-1">Issue Description</p>
-          <p className="text-gray-800">{selectedTicket.description}</p>
-        </div>
-
-        {/* AI triage panel */}
-        <div className="mt-4 bg-purple-50 border border-purple-200 rounded-xl p-4">
-          <p className="text-sm font-semibold text-purple-800 mb-1">⚡ AI Triage Result</p>
-          <p className="text-sm text-purple-700">Category detected: <strong>{selectedTicket.category}</strong></p>
-          <p className="text-sm text-purple-700 mt-1">Priority: <strong>{priority.label}</strong></p>
-          <p className="text-sm text-purple-700 mt-1">
-            {selectedTicket.priority === "P1"
-              ? "🔴 Critical issue — escalated automatically for immediate attention"
-              : "🟡 Standard issue — added to the ops queue"}
-          </p>
-        </div>
-
-        {/* Escalation banner for P1 unresolved */}
-        {selectedTicket.priority === "P1" && selectedTicket.status !== "Resolved" && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4 flex gap-3">
-            <span>⚠️</span>
-            <p className="text-red-700 text-sm">
-              This is a critical P1 issue. It has been escalated for priority handling.
-            </p>
-          </div>
-        )}
-
-        {/* On Hold banner */}
-        {selectedTicket.status === "On Hold" && (
-          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mt-4 flex gap-3">
-            <span>⏸️</span>
-            <p className="text-orange-700 text-sm">
-              This ticket is currently on hold pending further investigation.
-            </p>
-          </div>
-        )}
-
-        {/* Progress timeline */}
-        <div className="mt-6">
-          <p className="font-semibold mb-4">Progress Timeline</p>
-          {selectedTicket.steps.map((step, i) => (
-            <div key={i} className="flex items-center gap-4 mb-3">
-              <div className={`w-4 h-4 rounded-full flex-shrink-0 ${step.done ? "bg-purple-600" : "bg-gray-200"}`} />
-              <span className={step.done ? "text-gray-800 font-medium" : "text-gray-400"}>
-                {step.label}
+      <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
+        <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white px-8 py-6">
+          <button
+            onClick={function() { setSelectedTicket(null); }}
+            className="text-sm font-medium mb-4 flex items-center gap-1"
+            style={{color:"#B2DFDB"}}
+          >
+            Back to all tickets
+          </button>
+          <div className="flex justify-between items-start flex-wrap gap-2">
+            <h1 className="text-2xl font-bold">{selectedTicket.id}</h1>
+            <div className="flex gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-white" style={{color:"#00897B"}}>
+                {selectedTicket.status}
+              </span>
+              <span className="px-3 py-1 rounded-full text-sm font-medium" style={{backgroundColor:"rgba(255,255,255,0.2)",color:"white"}}>
+                {priority.label}
               </span>
             </div>
-          ))}
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-8 py-6">
+          <div className="bg-white rounded-xl p-4 mb-4 border-2" style={{borderColor:"#EEEEEE"}}>
+            <div className="space-y-1 text-sm" style={{color:"#9E9E9E"}}>
+              {selectedTicket.date && <p>Reported: {selectedTicket.date}</p>}
+              {selectedTicket.reportedBy && <p>Reported by: {selectedTicket.reportedBy}</p>}
+              {selectedTicket.platform && <p>Platform: {selectedTicket.platform} · {selectedTicket.device}</p>}
+              <p>Category: {selectedTicket.category}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-4 mb-4 border-2" style={{borderColor:"#EEEEEE"}}>
+            <p className="text-sm font-semibold mb-1" style={{color:"#616161"}}>Issue Description</p>
+            <p style={{color:"#212121"}}>{selectedTicket.description}</p>
+          </div>
+          <div className="rounded-xl p-4 mb-4 border" style={{backgroundColor:"#E0F2F1",borderColor:"#80CBC4"}}>
+            <p className="text-sm font-semibold mb-3" style={{color:"#00695C"}}>AI Triage Result</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white rounded-lg p-3">
+                <p className="text-xs" style={{color:"#9E9E9E"}}>Category</p>
+                <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{selectedTicket.category}</p>
+              </div>
+              <div className="bg-white rounded-lg p-3">
+                <p className="text-xs" style={{color:"#9E9E9E"}}>Priority</p>
+                <p className="font-semibold text-sm mt-0.5" style={{color:"#00897B"}}>{priority.label}</p>
+              </div>
+            </div>
+          </div>
+          {selectedTicket.priority === "P1" && selectedTicket.status !== "Resolved" && (
+            <div className="rounded-xl p-4 mb-4 flex gap-3 border" style={{backgroundColor:"#FFEBEE",borderColor:"#FFCDD2"}}>
+              <span>⚠️</span>
+              <p className="text-sm" style={{color:"#B71C1C"}}>This is a critical P1 issue. It has been escalated for priority handling.</p>
+            </div>
+          )}
+          {selectedTicket.status === "On Hold" && (
+            <div className="rounded-xl p-4 mb-4 flex gap-3 border" style={{backgroundColor:"#FFF3E0",borderColor:"#FFE082"}}>
+              <span>⏸️</span>
+              <p className="text-sm" style={{color:"#E65100"}}>This ticket is currently on hold pending further investigation.</p>
+            </div>
+          )}
+          <div className="bg-white rounded-xl p-5 mb-4 border-2" style={{borderColor:"#EEEEEE"}}>
+            <p className="font-semibold mb-4" style={{color:"#212121"}}>Progress Timeline</p>
+            {selectedTicket.steps.map(function(step, i) {
+              return (
+                <div key={i} className="flex items-center gap-4 mb-3">
+                  <div className="w-4 h-4 rounded-full flex-shrink-0" style={{backgroundColor:step.done?"#00897B":"#EEEEEE"}} />
+                  <span className="text-sm" style={{color:step.done?"#212121":"#BDBDBD",fontWeight:step.done?"600":"400"}}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {selectedTicket.status === "Resolved" && (
+            <div className="rounded-xl p-5 text-center border-2" style={{backgroundColor:"#E0F2F1",borderColor:"#80CBC4"}}>
+              <div className="text-4xl mb-2">🏅</div>
+              <p className="font-bold" style={{color:"#00695C"}}>Supported by Bustler</p>
+              <p className="text-sm mt-1" style={{color:"#00897B"}}>This issue was successfully resolved by the Bustler support team.</p>
+              <a href="/survey" className="inline-block mt-4 text-white px-6 py-2 rounded-xl text-sm font-semibold" style={{backgroundColor:"#00897B"}}>
+                Rate your experience
+              </a>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-2">Issue Tracker</h1>
-      <p className="text-gray-500 mb-6">Real Bustler bug reports — {tickets.length} issues tracked</p>
-
-      {/* Filter buttons */}
-      <div className="flex gap-2 flex-wrap mb-6">
-        {["All", "Open", "In Progress", "On Hold", "Resolved"].map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              filter === f
-                ? "bg-purple-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-purple-100"
-            }`}
-          >
-            {f} {f === "All" ? `(${tickets.length})` : `(${tickets.filter(t => t.status === f).length})`}
-          </button>
-        ))}
+    <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
+      <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white px-8 py-10 text-center">
+        <h1 className="text-3xl font-bold">Issue Tracker</h1>
+        <p className="mt-2 text-sm" style={{color:"#B2DFDB"}}>{tickets.length} real Bustler bug reports tracked</p>
       </div>
-
-      {/* Ticket list */}
-      <div className="space-y-4">
-        {filteredTickets.map((ticket) => {
-          const priority = adaptPriority(ticket.priority);
-          return (
-            <div
-              key={ticket.id}
-              onClick={() => setSelectedTicket(ticket)}
-              className="border-2 border-gray-100 rounded-xl p-5 cursor-pointer hover:border-purple-300 hover:bg-purple-50 transition-all"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1 mr-4">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-bold text-purple-700">{ticket.id}</p>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priority.color}`}>
-                      {priority.label}
-                    </span>
+      <div className="max-w-2xl mx-auto px-8 py-8">
+        <input
+          className="w-full border-2 rounded-xl py-3 px-4 mb-4 text-sm focus:outline-none bg-white"
+          style={{borderColor:"#EEEEEE",color:"#212121"}}
+          placeholder="Search by description, ID, or category..."
+          value={search}
+          onChange={function(e) { setSearch(e.target.value); }}
+          onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
+          onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
+        />
+        <div className="flex gap-2 flex-wrap mb-6">
+          {["All","Open","In Progress","On Hold","Resolved"].map(function(f) {
+            return (
+              <button
+                key={f}
+                onClick={function() { setFilter(f); }}
+                className="px-4 py-2 rounded-full text-sm font-medium border-2 transition-all"
+                style={filter===f ? {backgroundColor:"#00897B",color:"white",borderColor:"#00897B"} : {backgroundColor:"white",color:"#616161",borderColor:"#EEEEEE"}}
+              >
+                {f} ({f==="All" ? tickets.length : tickets.filter(function(t){return t.status===f;}).length})
+              </button>
+            );
+          })}
+        </div>
+        {filteredTickets.length === 0 && (
+          <div className="text-center py-8 bg-white rounded-xl border-2" style={{borderColor:"#EEEEEE"}}>
+            <p style={{color:"#9E9E9E"}}>No tickets found</p>
+            <p className="text-sm mt-1" style={{color:"#BDBDBD"}}>Try a different search or filter</p>
+          </div>
+        )}
+        <div className="space-y-4">
+          {filteredTickets.map(function(ticket) {
+            const priority = adaptPriority(ticket.priority);
+            return (
+              <div
+                key={ticket.id}
+                onClick={function() { setSelectedTicket(ticket); }}
+                className="bg-white border-2 rounded-xl p-5 cursor-pointer transition-all"
+                style={{borderColor:"#EEEEEE"}}
+                onMouseEnter={function(e) { e.currentTarget.style.borderColor="#00897B"; e.currentTarget.style.backgroundColor="#E0F2F1"; }}
+                onMouseLeave={function(e) { e.currentTarget.style.borderColor="#EEEEEE"; e.currentTarget.style.backgroundColor="white"; }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 mr-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-bold" style={{color:"#00897B"}}>{ticket.id}</p>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{backgroundColor:"#E0F2F1",color:"#00897B"}}>
+                        {priority.label}
+                      </span>
+                    </div>
+                    <p className="text-xs mt-1" style={{color:"#9E9E9E"}}>
+                      {ticket.category}
+                      {ticket.device ? ` · ${ticket.device}` : ""}
+                      {ticket.reportedBy ? ` · ${ticket.reportedBy}` : ""}
+                    </p>
+                    <p className="mt-2 text-sm" style={{color:"#424242"}}>{ticket.description}</p>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">{ticket.category} · {ticket.device} · Reported by {ticket.reportedBy}</p>
-                  <p className="text-gray-700 mt-2 text-sm line-clamp-2">{ticket.description}</p>
+                  <span className="px-3 py-1 rounded-full text-sm font-medium flex-shrink-0" style={statusStyles[ticket.status]||{backgroundColor:"#EEEEEE",color:"#616161"}}>
+                    {ticket.status}
+                  </span>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 ${statusColors[ticket.status]}`}>
-                  {ticket.status}
-                </span>
+                {ticket.date && (
+                  <p className="text-xs mt-3" style={{color:"#BDBDBD"}}>{ticket.date}</p>
+                )}
               </div>
-              <p className="text-xs text-gray-400 mt-3">📅 {ticket.date}</p>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
