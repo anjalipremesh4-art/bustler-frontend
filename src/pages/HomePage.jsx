@@ -4,6 +4,24 @@ function HomePage() {
   const navigate = useNavigate();
   return (
     <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
+
+      <div style={{backgroundColor:"#1A1A1A"}} className="text-white px-8 py-3 flex items-center justify-between">
+        <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>
+          Bustler Pulse — Complete Support Ecosystem
+        </p>
+        <div className="flex gap-3">
+          <a href="https://bustler-frontend.vercel.app" className="text-xs px-3 py-1 rounded-full font-semibold" style={{backgroundColor:"#00897B",color:"white"}}>
+            User Layer
+          </a>
+          <a href="https://bustler-pulse-six.vercel.app" target="_blank" rel="noreferrer" className="text-xs px-3 py-1 rounded-full font-semibold" style={{backgroundColor:"#E53935",color:"white"}}>
+            Ops Dashboard
+          </a>
+          <a href="https://bustler-pulse.vercel.app" target="_blank" rel="noreferrer" className="text-xs px-3 py-1 rounded-full font-semibold" style={{backgroundColor:"#1565C0",color:"white"}}>
+            Intelligence
+          </a>
+        </div>
+      </div>
+
       <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white py-20 px-8 text-center">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-5xl font-bold">Bustler Support Center</h1>
@@ -14,6 +32,7 @@ function HomePage() {
           </div>
         </div>
       </div>
+
       <div className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto grid grid-cols-3 divide-x">
           <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#00897B"}}>9</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Issues Tracked</p></div>
@@ -21,6 +40,7 @@ function HomePage() {
           <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#E53935"}}>4</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Critical P1</p></div>
         </div>
       </div>
+
       <div className="max-w-4xl mx-auto px-8 py-12">
         <div className="rounded-xl p-4 flex items-center gap-3 mb-10 border" style={{backgroundColor:"#E8F5E9",borderColor:"#A5D6A7"}}>
           <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor:"#43A047"}}></div>
@@ -29,6 +49,7 @@ function HomePage() {
             <p className="text-xs mt-1" style={{color:"#388E3C"}}>Support team is active — average response time 2 hours</p>
           </div>
         </div>
+
         <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>How can we help you?</h2>
         <div className="grid grid-cols-2 gap-4 mb-12">
           <button onClick={function(){navigate("/ticket");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
@@ -52,6 +73,7 @@ function HomePage() {
             <p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Find instant answers to common questions</p>
           </button>
         </div>
+
         <h2 className="text-xl font-bold mb-6" style={{color:"#212121"}}>How Bustler Pulse works</h2>
         <div className="bg-white rounded-xl border-2 overflow-hidden mb-12" style={{borderColor:"#EEEEEE"}}>
           <div className="flex items-start gap-4 p-5 border-b" style={{borderColor:"#EEEEEE"}}>
@@ -66,11 +88,12 @@ function HomePage() {
             <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#FFF3E0",color:"#E65100"}}>3</div>
             <div><p className="font-semibold" style={{color:"#212121"}}>Agent picks it up</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Support agent reviews the AI analysis and responds</p></div>
           </div>
-          <div className="flex items-start gap-4 p-5" style={{borderColor:"#EEEEEE"}}>
+          <div className="flex items-start gap-4 p-5">
             <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{backgroundColor:"#E8F5E9",color:"#2E7D32"}}>4</div>
             <div><p className="font-semibold" style={{color:"#212121"}}>Issue resolved</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>You get notified and earn a Supported by Bustler badge</p></div>
           </div>
         </div>
+
         <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>Recent Activity</h2>
         <div className="space-y-3">
           <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
@@ -87,6 +110,29 @@ function HomePage() {
           </div>
           <button onClick={function(){navigate("/tracker");}} className="w-full text-center text-sm py-2 font-medium" style={{color:"#00897B"}}>View all 9 issues</button>
         </div>
+
+        <div className="mt-12 bg-white rounded-xl border-2 p-6 text-center" style={{borderColor:"#EEEEEE"}}>
+          <p className="font-bold text-lg" style={{color:"#212121"}}>Bustler Pulse — Three Pillars</p>
+          <p className="text-sm mt-1 mb-6" style={{color:"#9E9E9E"}}>One complete support ecosystem built by our team</p>
+          <div className="grid grid-cols-3 gap-4">
+            <a href="https://bustler-frontend.vercel.app" className="rounded-xl p-4 text-center" style={{backgroundColor:"#E0F2F1"}}>
+              <div className="text-2xl mb-2">👤</div>
+              <p className="font-bold text-sm" style={{color:"#00695C"}}>User Layer</p>
+              <p className="text-xs mt-1" style={{color:"#00897B"}}>Anjali</p>
+            </a>
+            <a href="https://bustler-pulse-six.vercel.app" target="_blank" rel="noreferrer" className="rounded-xl p-4 text-center" style={{backgroundColor:"#FFEBEE"}}>
+              <div className="text-2xl mb-2">⚙️</div>
+              <p className="font-bold text-sm" style={{color:"#B71C1C"}}>Ops Dashboard</p>
+              <p className="text-xs mt-1" style={{color:"#E53935"}}>Ambadi</p>
+            </a>
+            <a href="https://bustler-pulse.vercel.app" target="_blank" rel="noreferrer" className="rounded-xl p-4 text-center" style={{backgroundColor:"#E3F2FD"}}>
+              <div className="text-2xl mb-2">🧠</div>
+              <p className="font-bold text-sm" style={{color:"#0D47A1"}}>Intelligence</p>
+              <p className="text-xs mt-1" style={{color:"#1565C0"}}>Adhilekshmi</p>
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   );
