@@ -23,6 +23,11 @@ function ResolutionSurvey() {
             <p className="text-sm" style={{color:"#00695C"}}>You rated this interaction <strong>{rating} out of 5 stars</strong></p>
             {selectedTag && <p className="text-xs mt-1" style={{color:"#00897B"}}>Tagged as: {selectedTag}</p>}
           </div>
+          <div className="rounded-xl p-5 mt-6 border-2 text-center" style={{backgroundColor:"#E0F2F1",borderColor:"#80CBC4"}}>
+  <div className="text-4xl mb-2">🏅</div>
+  <p className="font-bold" style={{color:"#00695C"}}>Supported by Bustler</p>
+  <p className="text-sm mt-1" style={{color:"#00897B"}}>Your issue was successfully resolved by the Bustler support team.</p>
+</div>
           <a href="/" className="inline-block mt-6 text-white px-6 py-3 rounded-xl font-semibold" style={{backgroundColor:"#00897B"}}>
             Back to Home
           </a>
