@@ -1,15 +1,19 @@
 const BASE_URL = "https://bustler-pulse.onrender.com";
-export async function getUserContext(userId) {
+
+export async function getUserContext() {
+  const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
     const response = await fetch(BASE_URL + "/tickets/context/" + userId);
     const data = await response.json();
     return {
+      userId: userId,
       projectId: data.project_id || "proj-001",
       paymentStatus: data.payment_status || "pending",
       lastCategory: data.last_category || "",
     };
   } catch (error) {
     return {
+      userId: userId,
       projectId: "proj-001",
       paymentStatus: "pending",
       lastCategory: "",
@@ -18,12 +22,13 @@ export async function getUserContext(userId) {
 }
 
 export async function createTicket(category, description) {
+  const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
     const response = await fetch(BASE_URL + "/tickets/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        user_id: "user-001",
+        user_id: userId,
         project_id: "proj-001",
         payment_status: "pending",
         category: category,
@@ -69,6 +74,7 @@ export async function getAutoReply(ticketId) {
 }
 
 export async function createDispute(disputeType, description) {
+  const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
     const response = await fetch(BASE_URL + "/disputes/", {
       method: "POST",
@@ -76,7 +82,7 @@ export async function createDispute(disputeType, description) {
       body: JSON.stringify({
         dispute_type: disputeType,
         description: description,
-        user_id: "user-001",
+        user_id: userId,
       }),
     });
     const data = await response.json();

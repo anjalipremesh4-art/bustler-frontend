@@ -27,9 +27,10 @@ function TicketForm() {
   const [ticketId, setTicketId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [context, setContext] = useState(null);
+  const userName = localStorage.getItem("bustler_user_name") || "User";
 
   useEffect(function() {
-    getUserContext("user-001").then(function(data) {
+    getUserContext().then(function(data) {
       setContext(data);
       if (data && data.lastCategory) {
         setSelected(data.lastCategory);
@@ -55,7 +56,7 @@ function TicketForm() {
 
       <div style={{background:"linear-gradient(135deg, #00897B 0%, #00695C 100%)"}} className="text-white px-8 py-6">
         <h1 className="text-2xl font-bold">Submit a Support Ticket</h1>
-        <p className="text-sm mt-1" style={{color:"#B2DFDB"}}>Our AI will analyze your issue instantly</p>
+        <p className="text-sm mt-1" style={{color:"#B2DFDB"}}>Hello {userName} — our AI will analyze your issue instantly</p>
       </div>
 
       {step < 4 && (
@@ -97,8 +98,8 @@ function TicketForm() {
                 <p className="text-xs font-semibold mb-2" style={{color:"#00695C"}}>📎 Context Auto-Attached</p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-white rounded-lg p-3">
-                    <p className="text-xs" style={{color:"#9E9E9E"}}>Project ID</p>
-                    <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{context.projectId}</p>
+                    <p className="text-xs" style={{color:"#9E9E9E"}}>User ID</p>
+                    <p className="font-semibold text-sm mt-0.5" style={{color:"#212121"}}>{context.userId}</p>
                   </div>
                   <div className="bg-white rounded-lg p-3">
                     <p className="text-xs" style={{color:"#9E9E9E"}}>Payment Status</p>
@@ -149,7 +150,7 @@ function TicketForm() {
               <p className="font-bold text-sm mt-0.5" style={{color:"#00897B"}}>{selected}</p>
             </div>
             <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Describe your issue</h2>
-            <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Be as specific as possible — include dates, amounts, or error messages</p>
+            <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Be as specific as possible</p>
             <textarea
               className="w-full border-2 rounded-xl p-4 h-40 text-sm resize-none focus:outline-none"
               style={{borderColor:"#EEEEEE", color:"#212121"}}
@@ -161,7 +162,7 @@ function TicketForm() {
             />
             {match && (
               <div className="rounded-xl p-4 mt-3 border" style={{backgroundColor:"#E8F5E9", borderColor:"#A5D6A7"}}>
-                <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>⚡ AI Quick Suggestion</p>
+                <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>AI Quick Suggestion</p>
                 <p className="text-sm mt-1" style={{color:"#388E3C"}}>{match.tip}</p>
               </div>
             )}
@@ -170,7 +171,7 @@ function TicketForm() {
               <button
                 onClick={function() { setStep(3); }}
                 disabled={description.length < 10}
-                className="text-white px-6 py-2 rounded-xl text-sm font-semibold transition-all"
+                className="text-white px-6 py-2 rounded-xl text-sm font-semibold"
                 style={{backgroundColor: description.length < 10 ? "#BDBDBD" : "#00897B"}}
               >
                 Continue
@@ -197,7 +198,7 @@ function TicketForm() {
               </div>
             </div>
             <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
-              <p className="font-semibold text-sm" style={{color:"#00695C"}}>⚡ AI Triage Preview</p>
+              <p className="font-semibold text-sm" style={{color:"#00695C"}}>AI Triage Preview</p>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <div className="bg-white rounded-lg p-3">
                   <p className="text-xs" style={{color:"#9E9E9E"}}>Detected Category</p>
@@ -212,7 +213,7 @@ function TicketForm() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full text-white py-4 rounded-xl font-bold transition-all"
+              className="w-full text-white py-4 rounded-xl font-bold"
               style={{backgroundColor: isSubmitting ? "#BDBDBD" : "#00897B"}}
             >
               {isSubmitting ? "Analyzing your issue..." : "Submit Ticket"}
@@ -240,13 +241,13 @@ function TicketForm() {
             <h2 className="text-2xl font-bold" style={{color:"#212121"}}>Ticket Submitted!</h2>
             <p className="mt-2" style={{color:"#9E9E9E"}}>Your issue has been received and analyzed</p>
             <div className="rounded-xl p-4 mt-4 border flex items-start gap-3" style={{backgroundColor:"#E3F2FD",borderColor:"#90CAF9"}}>
-  <span className="text-2xl">📧</span>
-  <div className="text-left">
-    <p className="font-semibold text-sm" style={{color:"#1565C0"}}>Confirmation email sent</p>
-    <p className="text-xs mt-1" style={{color:"#1976D2"}}>A confirmation has been sent to your registered email address with your ticket details.</p>
-  </div>
-</div>
-            <div className="rounded-xl p-4 mt-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+              <span className="text-2xl">📧</span>
+              <div className="text-left">
+                <p className="font-semibold text-sm" style={{color:"#1565C0"}}>Confirmation email sent</p>
+                <p className="text-xs mt-1" style={{color:"#1976D2"}}>A confirmation has been sent to your registered email address with your ticket details.</p>
+              </div>
+            </div>
+            <div className="rounded-xl p-4 mt-4 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="text-xs font-semibold" style={{color:"#00695C"}}>YOUR TICKET ID</p>
               <p className="text-3xl font-bold mt-1" style={{color:"#00897B"}}>{ticketId}</p>
             </div>
