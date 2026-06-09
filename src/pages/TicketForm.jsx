@@ -239,6 +239,13 @@ function TicketForm() {
             </div>
             <h2 className="text-2xl font-bold" style={{color:"#212121"}}>Ticket Submitted!</h2>
             <p className="mt-2" style={{color:"#9E9E9E"}}>Your issue has been received and analyzed</p>
+            <div className="rounded-xl p-4 mt-4 border flex items-start gap-3" style={{backgroundColor:"#E3F2FD",borderColor:"#90CAF9"}}>
+  <span className="text-2xl">📧</span>
+  <div className="text-left">
+    <p className="font-semibold text-sm" style={{color:"#1565C0"}}>Confirmation email sent</p>
+    <p className="text-xs mt-1" style={{color:"#1976D2"}}>A confirmation has been sent to your registered email address with your ticket details.</p>
+  </div>
+</div>
             <div className="rounded-xl p-4 mt-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="text-xs font-semibold" style={{color:"#00695C"}}>YOUR TICKET ID</p>
               <p className="text-3xl font-bold mt-1" style={{color:"#00897B"}}>{ticketId}</p>
