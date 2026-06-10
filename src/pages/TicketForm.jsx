@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createTicket, getUserContext } from "../utils/adapter";
+import { createTicket, getUserContext, uploadScreenshot } from "../utils/adapter";
 
 const categories = [
   { label: "Payment Issue", icon: "💳", desc: "Refunds, failed payments, billing" },
@@ -26,9 +26,10 @@ function TicketForm() {
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [screenshot, setScreenshot] = useState(null);
-const [screenshotName, setScreenshotName] = useState("");
   const [context, setContext] = useState(null);
+  const [screenshot, setScreenshot] = useState(null);
+  const [screenshotName, setScreenshotName] = useState("");
+  const [screenshotFile, setScreenshotFile] = useState(null);
   const userName = localStorage.getItem("bustler_user_name") || "User";
 
   useEffect(function() {
@@ -44,13 +45,16 @@ const [screenshotName, setScreenshotName] = useState("");
     return description.toLowerCase().includes(s.keyword);
   });
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setIsSubmitting(true);
-    createTicket(selected, description).then(function(result) {
-      setTicketId(result.ticketId);
-      setIsSubmitting(false);
-      setStep(4);
-    });
+    let screenshotUrl = null;
+    if (screenshotFile) {
+      screenshotUrl = await uploadScreenshot(screenshotFile);
+    }
+    const result = await createTicket(selected, description, screenshotUrl);
+    setTicketId(result.ticketId);
+    setIsSubmitting(false);
+    setStep(4);
   }
 
   return (
@@ -162,45 +166,49 @@ const [screenshotName, setScreenshotName] = useState("");
               onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
               onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
             />
-            <div className="mt-4">
-  <p className="text-sm font-medium mb-2" style={{color:"#424242"}}>Attach Screenshot (optional)</p>
-  <label className="flex items-center gap-3 p-4 border-2 border-dashed rounded-xl cursor-pointer transition-all" style={{borderColor:"#EEEEEE",backgroundColor:"white"}}>
-    <span className="text-2xl">📎</span>
-    <div>
-      <p className="text-sm font-semibold" style={{color:"#00897B"}}>Click to upload screenshot</p>
-      <p className="text-xs mt-0.5" style={{color:"#9E9E9E"}}>PNG, JPG up to 5MB</p>
-    </div>
-    <input
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          setScreenshotName(file.name);
-          const reader = new FileReader();
-          reader.onload = function(ev) { setScreenshot(ev.target.result); };
-          reader.readAsDataURL(file);
-        }
-      }}
-    />
-  </label>
-  {screenshot && (
-    <div className="mt-3 rounded-xl overflow-hidden border-2" style={{borderColor:"#80CBC4"}}>
-      <div className="flex items-center justify-between px-3 py-2" style={{backgroundColor:"#E0F2F1"}}>
-        <p className="text-xs font-semibold" style={{color:"#00695C"}}>📎 {screenshotName}</p>
-        <button onClick={function(){setScreenshot(null);setScreenshotName("");}} className="text-xs font-semibold" style={{color:"#E53935"}}>Remove</button>
-      </div>
-      <img src={screenshot} alt="screenshot" className="w-full max-h-48 object-cover" />
-    </div>
-  )}
-</div>
+
             {match && (
               <div className="rounded-xl p-4 mt-3 border" style={{backgroundColor:"#E8F5E9", borderColor:"#A5D6A7"}}>
                 <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>AI Quick Suggestion</p>
                 <p className="text-sm mt-1" style={{color:"#388E3C"}}>{match.tip}</p>
               </div>
             )}
+
+            <div className="mt-4">
+              <p className="text-sm font-medium mb-2" style={{color:"#424242"}}>Attach Screenshot (optional)</p>
+              <label className="flex items-center gap-3 p-4 border-2 border-dashed rounded-xl cursor-pointer" style={{borderColor:"#EEEEEE",backgroundColor:"white"}}>
+                <span className="text-2xl">📎</span>
+                <div>
+                  <p className="text-sm font-semibold" style={{color:"#00897B"}}>Click to upload screenshot</p>
+                  <p className="text-xs mt-0.5" style={{color:"#9E9E9E"}}>PNG, JPG up to 5MB — saved to backend</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setScreenshotName(file.name);
+                      setScreenshotFile(file);
+                      const reader = new FileReader();
+                      reader.onload = function(ev) { setScreenshot(ev.target.result); };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+              {screenshot && (
+                <div className="mt-3 rounded-xl overflow-hidden border-2" style={{borderColor:"#80CBC4"}}>
+                  <div className="flex items-center justify-between px-3 py-2" style={{backgroundColor:"#E0F2F1"}}>
+                    <p className="text-xs font-semibold" style={{color:"#00695C"}}>📎 {screenshotName}</p>
+                    <button onClick={function(){setScreenshot(null);setScreenshotName("");setScreenshotFile(null);}} className="text-xs font-semibold" style={{color:"#E53935"}}>Remove</button>
+                  </div>
+                  <img src={screenshot} alt="screenshot" className="w-full max-h-48 object-cover" />
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-between items-center mt-4">
               <span className="text-xs" style={{color:"#9E9E9E"}}>{description.length} characters</span>
               <button
@@ -227,10 +235,16 @@ const [screenshotName, setScreenshotName] = useState("");
                 <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>CATEGORY</p>
                 <p className="font-semibold mt-1" style={{color:"#212121"}}>{selected}</p>
               </div>
-              <div className="p-4">
+              <div className="p-4 border-b" style={{borderColor:"#EEEEEE"}}>
                 <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>DESCRIPTION</p>
                 <p className="text-sm mt-1" style={{color:"#212121"}}>{description}</p>
               </div>
+              {screenshot && (
+                <div className="p-4">
+                  <p className="text-xs font-semibold mb-2" style={{color:"#9E9E9E"}}>SCREENSHOT</p>
+                  <img src={screenshot} alt="screenshot" className="w-full max-h-32 object-cover rounded-lg" />
+                </div>
+              )}
             </div>
             <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="font-semibold text-sm" style={{color:"#00695C"}}>AI Triage Preview</p>
@@ -251,11 +265,11 @@ const [screenshotName, setScreenshotName] = useState("");
               className="w-full text-white py-4 rounded-xl font-bold"
               style={{backgroundColor: isSubmitting ? "#BDBDBD" : "#00897B"}}
             >
-              {isSubmitting ? "Analyzing your issue..." : "Submit Ticket"}
+              {isSubmitting ? "Uploading and submitting..." : "Submit Ticket"}
             </button>
             {isSubmitting && (
               <div className="mt-4 space-y-2">
-                {["Reading your issue...","Categorizing issue type...","Scoring urgency level...","Generating ticket ID..."].map(function(msg, i) {
+                {["Uploading screenshot to server...","Reading your issue...","Categorizing issue type...","Generating ticket ID..."].map(function(msg, i) {
                   return (
                     <div key={i} className="flex items-center gap-2 text-sm" style={{color:"#9E9E9E"}}>
                       <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{borderColor:"#00897B"}}></div>
@@ -311,7 +325,7 @@ const [screenshotName, setScreenshotName] = useState("");
             </div>
             <div className="flex gap-3 mt-6">
               <button
-                onClick={function() { setStep(1); setDescription(""); setSelected(""); }}
+                onClick={function() { setStep(1); setDescription(""); setSelected(""); setScreenshot(null); setScreenshotFile(null); setScreenshotName(""); }}
                 className="flex-1 border-2 py-3 rounded-xl font-semibold text-sm"
                 style={{borderColor:"#00897B", color:"#00897B"}}
               >

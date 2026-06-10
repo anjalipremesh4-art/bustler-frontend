@@ -21,19 +21,38 @@ export async function getUserContext() {
   }
 }
 
-export async function createTicket(category, description) {
+export async function uploadScreenshot(file) {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(BASE_URL + "/tickets/upload-screenshot", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    return data.screenshot_url || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function createTicket(category, description, screenshotUrl) {
   const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
+    const body = {
+      user_id: userId,
+      project_id: "proj-001",
+      payment_status: "pending",
+      category: category,
+      description: description,
+    };
+    if (screenshotUrl) {
+      body.screenshot_url = screenshotUrl;
+    }
     const response = await fetch(BASE_URL + "/tickets/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        project_id: "proj-001",
-        payment_status: "pending",
-        category: category,
-        description: description,
-      }),
+      body: JSON.stringify(body),
     });
     const data = await response.json();
     return { success: true, ticketId: data.id || data.ticket_id };
@@ -73,17 +92,21 @@ export async function getAutoReply(ticketId) {
   }
 }
 
-export async function createDispute(disputeType, description) {
+export async function createDispute(disputeType, description, screenshotUrl) {
   const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
+    const body = {
+      dispute_type: disputeType,
+      description: description,
+      user_id: userId,
+    };
+    if (screenshotUrl) {
+      body.screenshot_url = screenshotUrl;
+    }
     const response = await fetch(BASE_URL + "/disputes/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        dispute_type: disputeType,
-        description: description,
-        user_id: userId,
-      }),
+      body: JSON.stringify(body),
     });
     const data = await response.json();
     return { success: true, disputeId: data.id || data.dispute_id };
@@ -108,6 +131,7 @@ export function adaptTicket(backendTicket, index) {
     autoReply: backendTicket.auto_reply || null,
     priority: urgencyToPriority(backendTicket.urgency_score),
     steps: adaptSteps(backendTicket.status || "open"),
+    screenshotUrl: backendTicket.screenshot_url || null,
   };
 }
 
