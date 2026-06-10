@@ -26,6 +26,8 @@ function TicketForm() {
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [screenshot, setScreenshot] = useState(null);
+const [screenshotName, setScreenshotName] = useState("");
   const [context, setContext] = useState(null);
   const userName = localStorage.getItem("bustler_user_name") || "User";
 
@@ -160,6 +162,39 @@ function TicketForm() {
               onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
               onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
             />
+            <div className="mt-4">
+  <p className="text-sm font-medium mb-2" style={{color:"#424242"}}>Attach Screenshot (optional)</p>
+  <label className="flex items-center gap-3 p-4 border-2 border-dashed rounded-xl cursor-pointer transition-all" style={{borderColor:"#EEEEEE",backgroundColor:"white"}}>
+    <span className="text-2xl">📎</span>
+    <div>
+      <p className="text-sm font-semibold" style={{color:"#00897B"}}>Click to upload screenshot</p>
+      <p className="text-xs mt-0.5" style={{color:"#9E9E9E"}}>PNG, JPG up to 5MB</p>
+    </div>
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          setScreenshotName(file.name);
+          const reader = new FileReader();
+          reader.onload = function(ev) { setScreenshot(ev.target.result); };
+          reader.readAsDataURL(file);
+        }
+      }}
+    />
+  </label>
+  {screenshot && (
+    <div className="mt-3 rounded-xl overflow-hidden border-2" style={{borderColor:"#80CBC4"}}>
+      <div className="flex items-center justify-between px-3 py-2" style={{backgroundColor:"#E0F2F1"}}>
+        <p className="text-xs font-semibold" style={{color:"#00695C"}}>📎 {screenshotName}</p>
+        <button onClick={function(){setScreenshot(null);setScreenshotName("");}} className="text-xs font-semibold" style={{color:"#E53935"}}>Remove</button>
+      </div>
+      <img src={screenshot} alt="screenshot" className="w-full max-h-48 object-cover" />
+    </div>
+  )}
+</div>
             {match && (
               <div className="rounded-xl p-4 mt-3 border" style={{backgroundColor:"#E8F5E9", borderColor:"#A5D6A7"}}>
                 <p className="font-semibold text-sm" style={{color:"#2E7D32"}}>AI Quick Suggestion</p>
