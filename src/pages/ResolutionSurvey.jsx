@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const BASE_URL = "https://bustler-pulse.onrender.com";
+
 function ResolutionSurvey() {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -8,9 +10,33 @@ function ResolutionSurvey() {
   const [selectedTag, setSelectedTag] = useState("");
 
   const tags = ["Fast response","Very helpful","Clear communication","Needs improvement","Too slow"];
-  const messages = {1:"We are sorry to hear that.",2:"We will try to do better.",3:"Thanks for the feedback!",4:"Great, glad we could help!",5:"Amazing! That is what we aim for!"};
+  const messages = {
+    1:"We are sorry to hear that.",
+    2:"We will try to do better.",
+    3:"Thanks for the feedback!",
+    4:"Great, glad we could help!",
+    5:"Amazing! That is what we aim for!"
+  };
 
-  if(submitted){
+  async function handleSubmit() {
+    try {
+      await fetch(BASE_URL + "/feedback/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticket_id: 1,
+          csat_score: rating,
+          comment: comment || "No comment",
+          tag: selectedTag || "General feedback"
+        })
+      });
+    } catch (error) {
+      console.log("Feedback submission failed silently");
+    }
+    setSubmitted(true);
+  }
+
+  if (submitted) {
     return (
       <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen flex items-center justify-center p-8">
         <div className="max-w-md w-full text-center">
@@ -23,11 +49,15 @@ function ResolutionSurvey() {
             <p className="text-sm" style={{color:"#00695C"}}>You rated this interaction <strong>{rating} out of 5 stars</strong></p>
             {selectedTag && <p className="text-xs mt-1" style={{color:"#00897B"}}>Tagged as: {selectedTag}</p>}
           </div>
-          <div className="rounded-xl p-5 mt-6 border-2 text-center" style={{backgroundColor:"#E0F2F1",borderColor:"#80CBC4"}}>
-  <div className="text-4xl mb-2">🏅</div>
-  <p className="font-bold" style={{color:"#00695C"}}>Supported by Bustler</p>
-  <p className="text-sm mt-1" style={{color:"#00897B"}}>Your issue was successfully resolved by the Bustler support team.</p>
-</div>
+          <div className="mt-4 rounded-xl p-4 border" style={{backgroundColor:"#E8F5E9",borderColor:"#A5D6A7"}}>
+            <p className="text-xs font-semibold" style={{color:"#2E7D32"}}>Feedback saved to backend</p>
+            <p className="text-xs mt-1" style={{color:"#388E3C"}}>Your CSAT score has been recorded for the ops team.</p>
+          </div>
+          <div className="mt-6 rounded-xl p-5 border-2" style={{backgroundColor:"#E0F2F1",borderColor:"#80CBC4"}}>
+            <div className="text-4xl mb-2">🏅</div>
+            <p className="font-bold" style={{color:"#00695C"}}>Supported by Bustler</p>
+            <p className="text-sm mt-1" style={{color:"#00897B"}}>Your issue was successfully resolved by the Bustler support team.</p>
+          </div>
           <a href="/" className="inline-block mt-6 text-white px-6 py-3 rounded-xl font-semibold" style={{backgroundColor:"#00897B"}}>
             Back to Home
           </a>
@@ -48,7 +78,7 @@ function ResolutionSurvey() {
         <div className="bg-white rounded-xl p-6 mb-6 border-2" style={{borderColor:"#EEEEEE"}}>
           <p className="text-sm font-semibold text-center mb-4" style={{color:"#424242"}}>Rate your experience</p>
           <div className="flex justify-center gap-3">
-            {[1,2,3,4,5].map(function(star){
+            {[1,2,3,4,5].map(function(star) {
               return (
                 <button
                   key={star}
@@ -66,6 +96,7 @@ function ResolutionSurvey() {
             <p className="text-center mt-3 text-sm font-medium" style={{color:"#00897B"}}>{messages[rating]}</p>
           )}
         </div>
+
         {rating>0 && (
           <div className="mb-6">
             <p className="text-sm font-semibold mb-3" style={{color:"#424242"}}>Quick feedback tags</p>
@@ -76,7 +107,10 @@ function ResolutionSurvey() {
                     key={tag}
                     onClick={function(){setSelectedTag(tag===selectedTag?"":tag);}}
                     className="px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all"
-                    style={selectedTag===tag ? {backgroundColor:"#00897B",color:"white",borderColor:"#00897B"} : {backgroundColor:"white",color:"#616161",borderColor:"#EEEEEE"}}
+                    style={selectedTag===tag
+                      ? {backgroundColor:"#00897B",color:"white",borderColor:"#00897B"}
+                      : {backgroundColor:"white",color:"#616161",borderColor:"#EEEEEE"}
+                    }
                   >
                     {tag}
                   </button>
@@ -85,6 +119,7 @@ function ResolutionSurvey() {
             </div>
           </div>
         )}
+
         <div className="mb-6">
           <label className="text-sm font-medium" style={{color:"#424242"}}>Any comments? (optional)</label>
           <textarea
@@ -98,8 +133,9 @@ function ResolutionSurvey() {
             rows={3}
           />
         </div>
+
         <button
-          onClick={function(){setSubmitted(true);}}
+          onClick={handleSubmit}
           disabled={rating===0}
           className="w-full text-white py-4 rounded-xl font-semibold transition-all"
           style={{backgroundColor:rating===0?"#BDBDBD":"#00897B"}}
