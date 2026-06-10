@@ -4,6 +4,8 @@ function DisputeCenter() {
   const [step, setStep] = useState(1);
   const [disputeType, setDisputeType] = useState("");
   const [description, setDescription] = useState("");
+  const [screenshot, setScreenshot] = useState(null);
+  const [screenshotName, setScreenshotName] = useState("");
   const [disputeId] = useState("DSP-" + Math.floor(Math.random() * 900 + 100));
 
   return (
@@ -20,6 +22,7 @@ function DisputeCenter() {
             );
           })}
         </div>
+
         {step===1 && (
           <div>
             <h2 className="text-lg font-bold mb-2" style={{color:"#212121"}}>What is your dispute about?</h2>
@@ -40,6 +43,7 @@ function DisputeCenter() {
             })}
           </div>
         )}
+
         {step===2 && (
           <div>
             <button onClick={function(){setStep(1);}} className="text-sm mb-4 font-medium" style={{color:"#E53935"}}>Back</button>
@@ -57,9 +61,42 @@ function DisputeCenter() {
               onFocus={function(e){e.target.style.borderColor="#E53935";}}
               onBlur={function(e){e.target.style.borderColor="#EEEEEE";}}
             />
-            <div className="rounded-xl p-4 mt-3 border" style={{backgroundColor:"#FFF8E1",borderColor:"#FFE082"}}>
-              <p className="text-sm" style={{color:"#F57F17"}}>In the final version you will be able to upload screenshots as evidence.</p>
+
+            {/* Screenshot upload */}
+            <div className="mt-4">
+              <p className="text-sm font-medium mb-2" style={{color:"#424242"}}>Attach Evidence Screenshot (optional)</p>
+              <label className="flex items-center gap-3 p-4 border-2 border-dashed rounded-xl cursor-pointer transition-all" style={{borderColor:"#EEEEEE",backgroundColor:"white"}}>
+                <span className="text-2xl">📎</span>
+                <div>
+                  <p className="text-sm font-semibold" style={{color:"#E53935"}}>Click to upload screenshot</p>
+                  <p className="text-xs mt-0.5" style={{color:"#9E9E9E"}}>PNG, JPG up to 5MB</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={function(e){
+                    const file = e.target.files[0];
+                    if(file){
+                      setScreenshotName(file.name);
+                      const reader = new FileReader();
+                      reader.onload = function(ev){setScreenshot(ev.target.result);};
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+              {screenshot && (
+                <div className="mt-3 rounded-xl overflow-hidden border-2" style={{borderColor:"#FFCDD2"}}>
+                  <div className="flex items-center justify-between px-3 py-2" style={{backgroundColor:"#FFEBEE"}}>
+                    <p className="text-xs font-semibold" style={{color:"#B71C1C"}}>📎 {screenshotName}</p>
+                    <button onClick={function(){setScreenshot(null);setScreenshotName("");}} className="text-xs font-semibold" style={{color:"#E53935"}}>Remove</button>
+                  </div>
+                  <img src={screenshot} alt="evidence" className="w-full max-h-48 object-cover" />
+                </div>
+              )}
             </div>
+
             <button
               onClick={function(){setStep(3);}}
               disabled={description.length<20}
@@ -71,6 +108,7 @@ function DisputeCenter() {
             <p className="text-center text-xs mt-2" style={{color:"#9E9E9E"}}>{description.length} characters — need at least 20</p>
           </div>
         )}
+
         {step===3 && (
           <div className="text-center py-8">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{backgroundColor:"#FFEBEE"}}>
@@ -79,6 +117,16 @@ function DisputeCenter() {
             <h2 className="text-2xl font-bold" style={{color:"#212121"}}>Dispute Submitted</h2>
             <p className="text-sm mt-2" style={{color:"#9E9E9E"}}>Your dispute ID is</p>
             <p className="text-2xl font-bold mt-1" style={{color:"#E53935"}}>{disputeId}</p>
+
+            {screenshot && (
+              <div className="mt-4 rounded-xl overflow-hidden border-2 text-left" style={{borderColor:"#FFCDD2"}}>
+                <div className="px-3 py-2" style={{backgroundColor:"#FFEBEE"}}>
+                  <p className="text-xs font-semibold" style={{color:"#B71C1C"}}>📎 Evidence submitted: {screenshotName}</p>
+                </div>
+                <img src={screenshot} alt="evidence" className="w-full max-h-32 object-cover" />
+              </div>
+            )}
+
             <div className="bg-white rounded-xl p-6 mt-6 text-left space-y-3 border-2" style={{borderColor:"#EEEEEE"}}>
               <p className="text-sm font-semibold" style={{color:"#212121"}}>What happens next:</p>
               {["Both parties will be notified","Our team reviews all evidence within 48 hours","A resolution decision will be shared with both parties"].map(function(text,i){
@@ -90,7 +138,11 @@ function DisputeCenter() {
                 );
               })}
             </div>
-            <button onClick={function(){setStep(1);setDescription("");}} className="mt-6 text-sm font-semibold hover:underline" style={{color:"#E53935"}}>
+            <button
+              onClick={function(){setStep(1);setDescription("");setScreenshot(null);setScreenshotName("");}}
+              className="mt-6 text-sm font-semibold hover:underline"
+              style={{color:"#E53935"}}
+            >
               Submit another dispute
             </button>
           </div>
