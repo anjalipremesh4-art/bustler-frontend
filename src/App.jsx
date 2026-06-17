@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import TicketForm from "./pages/TicketForm";
@@ -9,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 
 function NavBar() {
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
   function isActive(path) {
     return location.pathname === path;
   }
@@ -27,11 +29,11 @@ function NavBar() {
         </div>
         <span className="font-bold text-lg">Bustler Pulse</span>
       </a>
-      <div className="flex items-center gap-1">
+
+      <div className="hidden md:flex items-center gap-1">
         {links.map(function(item) {
           return (
-            
-              <a key={item.path}
+            <a key={item.path}
               href={item.path}
               style={isActive(item.path) ? { backgroundColor: "rgba(255,255,255,0.2)" } : {}}
               className="px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white hover:bg-opacity-20"
@@ -41,6 +43,50 @@ function NavBar() {
           );
         })}
       </div>
+
+      <button
+        onClick={function(){ setMenuOpen(true); }}
+        className="md:hidden flex items-center justify-center w-9 h-9"
+        aria-label="Open menu"
+      >
+        <span style={{ fontSize: "24px" }}>☰</span>
+      </button>
+
+      {menuOpen && (
+        <div
+          onClick={function(){ setMenuOpen(false); }}
+          className="fixed inset-0 z-50"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div
+            onClick={function(e){ e.stopPropagation(); }}
+            className="fixed top-0 right-0 h-full w-64 flex flex-col p-6"
+            style={{ backgroundColor: "#00897B" }}
+          >
+            <div className="flex justify-end mb-6">
+              <button
+                onClick={function(){ setMenuOpen(false); }}
+                className="text-white text-2xl"
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+            {links.map(function(item) {
+              return (
+                <a key={item.path}
+                  href={item.path}
+                  style={isActive(item.path) ? { backgroundColor: "rgba(255,255,255,0.2)" } : {}}
+                  className="px-4 py-3 rounded-lg text-base font-medium text-white transition-all mb-2"
+                  onClick={function(){ setMenuOpen(false); }}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
