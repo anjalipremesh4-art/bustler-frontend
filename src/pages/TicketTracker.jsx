@@ -114,9 +114,10 @@ function TicketTracker() {
               <div className="text-4xl mb-2">🏅</div>
               <p className="font-bold" style={{color:"#00695C"}}>Supported by Bustler</p>
               <p className="text-sm mt-1" style={{color:"#00897B"}}>This issue was successfully resolved by the Bustler support team.</p>
-              <a href="/survey" className="inline-block mt-4 text-white px-6 py-2 rounded-xl text-sm font-semibold" style={{backgroundColor:"#00897B"}}>
-                Rate your experience
-              </a>
+              
+              <a href={"/survey/" + selectedTicket.id} className="inline-block mt-4 text-white px-6 py-2 rounded-xl text-sm font-semibold" style={{backgroundColor:"#00897B"}}>
+  Rate your experience
+</a>
             </div>
           )}
         </div>
