@@ -112,7 +112,7 @@ function App() {
         <Route path="/ticket" element={<TicketForm />} />
         <Route path="/tracker" element={<TicketTracker />} />
         <Route path="/dispute" element={<DisputeCenter />} />
-        <Route path="/survey" element={<ResolutionSurvey />} />
+        <Route path="/survey/:ticketId" element={<ResolutionSurvey />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>

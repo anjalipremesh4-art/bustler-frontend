@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const BASE_URL = "https://bustler-pulse.onrender.com";
 
 function ResolutionSurvey() {
+  const { ticketId } = useParams();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -24,7 +26,8 @@ function ResolutionSurvey() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ticket_id: 1,
+        
+          ticket_id: parseInt(ticketId),
           user: localStorage.getItem("bustler_user_id"),
           csat_score: rating,
           comment: comment || "No comment",
