@@ -24,7 +24,7 @@ function ResolutionSurvey() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ticket_id: 25,
+          ticket_id: 1,
           user: localStorage.getItem("bustler_user_id"),
           csat_score: rating,
           comment: comment || "No comment",
