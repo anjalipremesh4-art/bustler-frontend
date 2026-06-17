@@ -6,7 +6,6 @@ import TicketTracker from "./pages/TicketTracker";
 import DisputeCenter from "./pages/DisputeCenter";
 import ResolutionSurvey from "./pages/ResolutionSurvey";
 import FAQPage from "./pages/FAQPage";
-import LoginPage from "./pages/LoginPage";
 
 function NavBar() {
   const location = useLocation();
@@ -160,7 +159,7 @@ function App() {
         <Route path="/dispute" element={<DisputeCenter />} />
         <Route path="/survey/:ticketId" element={<ResolutionSurvey />} />
         <Route path="/faq" element={<FAQPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        
       </Routes>
       <Footer />
     </BrowserRouter>
