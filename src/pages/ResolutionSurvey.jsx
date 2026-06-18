@@ -28,7 +28,7 @@ function ResolutionSurvey() {
         body: JSON.stringify({
         
           ticket_id: parseInt(ticketId),
-          user: localStorage.getItem("bustler_user_id"),
+          user: localStorage.getItem("bustler_user_id") || "guest",
           csat_score: rating,
           comment: comment || "No comment",
           tag: selectedTag || "General feedback"
