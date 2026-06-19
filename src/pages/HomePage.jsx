@@ -34,7 +34,7 @@ function HomePage() {
         </div>
 
         <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>How can we help you?</h2>
-        <div className="grid grid-cols-2 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
           <button onClick={function(){navigate("/ticket");}} className="bg-white border-2 rounded-xl p-6 text-left" style={{borderColor:"#EEEEEE"}}>
             <div className="text-3xl mb-2">🎫</div>
             <p className="font-bold" style={{color:"#212121"}}>Submit a Support Ticket</p>
