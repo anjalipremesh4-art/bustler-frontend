@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createTicket, getUserContext, uploadScreenshot } from "../utils/adapter";
+import { createTicket, getUserContext, getUserOrders, uploadScreenshot } from "../utils/adapter";
 
 const categories = [
   { label: "Payment Issue", icon: "💳", desc: "Refunds, failed payments, billing" },
@@ -21,7 +21,7 @@ const smartSuggestions = [
 ];
 
 function TicketForm() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [selected, setSelected] = useState("");
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
@@ -30,6 +30,9 @@ function TicketForm() {
   const [screenshot, setScreenshot] = useState(null);
   const [screenshotName, setScreenshotName] = useState("");
   const [screenshotFile, setScreenshotFile] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const userName = localStorage.getItem("bustler_user_name") || "User";
 
   useEffect(function() {
@@ -38,6 +41,13 @@ function TicketForm() {
       if (data && data.lastCategory) {
         setSelected(data.lastCategory);
       }
+    });
+  }, []);
+
+  useEffect(function() {
+    getUserOrders().then(function(data) {
+      setOrders(data);
+      setLoadingOrders(false);
     });
   }, []);
 
@@ -54,7 +64,7 @@ function TicketForm() {
     const result = await createTicket(selected, description, screenshotUrl);
     setTicketId(result.ticketId);
     setIsSubmitting(false);
-    setStep(4);
+    setStep(5);
   }
 
   return (
@@ -65,10 +75,10 @@ function TicketForm() {
         <p className="text-sm mt-1" style={{color:"#B2DFDB"}}>Hello {userName} — our AI will analyze your issue instantly</p>
       </div>
 
-      {step < 4 && (
+      {step > 0 && step < 5 && (
         <div className="bg-white border-b" style={{borderColor:"#EEEEEE"}}>
-          <div className="max-w-2xl mx-auto px-8 py-3 flex items-center gap-3">
-            {["Category","Describe","Review"].map(function(label, i) {
+          <div className="max-w-2xl mx-auto px-8 py-3 flex items-center gap-3 flex-wrap">
+            {["Order","Category","Describe","Review"].map(function(label, i) {
               const stepNum = i + 1;
               return (
                 <div key={label} className="flex items-center gap-2">
@@ -84,7 +94,7 @@ function TicketForm() {
                   <span className="text-sm" style={{color: step === stepNum ? "#00897B" : "#9E9E9E", fontWeight: step === stepNum ? "600" : "400"}}>
                     {label}
                   </span>
-                  {i < 2 && <div className="h-0.5 w-8" style={{backgroundColor: step > stepNum ? "#43A047" : "#EEEEEE"}} />}
+                  {i < 3 && <div className="h-0.5 w-6" style={{backgroundColor: step > stepNum ? "#43A047" : "#EEEEEE"}} />}
                 </div>
               );
             })}
@@ -94,10 +104,90 @@ function TicketForm() {
 
       <div className="max-w-2xl mx-auto p-8">
 
+        {step === 0 && (
+          <div>
+            <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Which order is this about?</h2>
+            <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Select a recent order so we can attach its details automatically</p>
+
+            {loadingOrders && (
+              <div className="flex items-center gap-2 text-sm py-6" style={{color:"#9E9E9E"}}>
+                <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{borderColor:"#00897B"}}></div>
+                Loading your recent orders...
+              </div>
+            )}
+
+            {!loadingOrders && orders.length === 0 && (
+              <div className="rounded-xl p-4 mb-4 border" style={{backgroundColor:"#FFF3E0",borderColor:"#FFE082"}}>
+                <p className="text-sm" style={{color:"#E65100"}}>No recent orders found. You can still continue without selecting one.</p>
+              </div>
+            )}
+
+            {!loadingOrders && orders.map(function(order) {
+              const isSelected = selectedOrder && selectedOrder.order_id === order.order_id;
+              return (
+                <button
+                  key={order.order_id}
+                  onClick={function() { setSelectedOrder(order); }}
+                  className="w-full text-left p-4 border-2 rounded-xl mb-3 bg-white transition-all"
+                  style={{borderColor: isSelected ? "#00897B" : "#EEEEEE", backgroundColor: isSelected ? "#E0F2F1" : "white"}}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-semibold text-sm" style={{color:"#212121"}}>{order.project_name}</p>
+                      <p className="text-xs mt-1" style={{color:"#9E9E9E"}}>
+                        {order.order_id} · {order.freelancer_name} · ₹{order.amount}
+                      </p>
+                      <p className="text-xs mt-1" style={{color:"#BDBDBD"}}>{order.date}</p>
+                    </div>
+                    <span
+                      className="text-xs px-2 py-1 rounded-full font-medium capitalize"
+                      style={{
+                        backgroundColor: order.status === "completed" ? "#E8F5E9" : "#FFF3E0",
+                        color: order.status === "completed" ? "#2E7D32" : "#E65100"
+                      }}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <p className="text-xs font-semibold mt-2" style={{color:"#00897B"}}>✓ Selected — will attach to your ticket</p>
+                  )}
+                </button>
+              );
+            })}
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={function() { setSelectedOrder(null); setStep(1); }}
+                className="flex-1 border-2 py-3 rounded-xl font-semibold text-sm"
+                style={{borderColor:"#BDBDBD", color:"#616161"}}
+              >
+                Skip — not order related
+              </button>
+              <button
+                onClick={function() { setStep(1); }}
+                disabled={!selectedOrder}
+                className="flex-1 text-white py-3 rounded-xl font-semibold text-sm"
+                style={{backgroundColor: selectedOrder ? "#00897B" : "#BDBDBD"}}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
         {step === 1 && (
           <div>
             <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>What do you need help with?</h2>
             <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Select the category that best describes your issue</p>
+
+            {selectedOrder && (
+              <div className="rounded-xl p-4 mb-4 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
+                <p className="text-xs font-semibold mb-1" style={{color:"#00695C"}}>📎 Order Attached</p>
+                <p className="text-sm font-semibold" style={{color:"#212121"}}>{selectedOrder.project_name}</p>
+                <p className="text-xs mt-0.5" style={{color:"#00897B"}}>{selectedOrder.order_id} · {selectedOrder.freelancer_name} · ₹{selectedOrder.amount}</p>
+              </div>
+            )}
 
             {context && (
               <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
@@ -119,7 +209,7 @@ function TicketForm() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {categories.map(function(cat) {
                 return (
                   <button
@@ -127,8 +217,6 @@ function TicketForm() {
                     onClick={function() { setSelected(cat.label); setStep(2); }}
                     className="bg-white border-2 rounded-xl p-4 text-left transition-all"
                     style={{borderColor: selected === cat.label ? "#00897B" : "#EEEEEE"}}
-                    onMouseEnter={function(e) { e.currentTarget.style.borderColor="#00897B"; e.currentTarget.style.backgroundColor="#E0F2F1"; }}
-                    onMouseLeave={function(e) { e.currentTarget.style.borderColor=selected===cat.label?"#00897B":"#EEEEEE"; e.currentTarget.style.backgroundColor="white"; }}
                   >
                     <div className="text-2xl mb-2">{cat.icon}</div>
                     <p className="font-semibold text-sm" style={{color:"#212121"}}>{cat.label}</p>
@@ -138,11 +226,9 @@ function TicketForm() {
               })}
             </div>
 
-            <div className="mt-6 rounded-xl p-4 border" style={{backgroundColor:"#E3F2FD", borderColor:"#90CAF9"}}>
-              <p className="text-sm font-semibold" style={{color:"#1565C0"}}>💡 Check the Help Center first</p>
-              <p className="text-xs mt-1" style={{color:"#1976D2"}}>Your question might already be answered in our FAQ.</p>
-              <a href="/faq" className="text-xs font-semibold underline mt-1 inline-block" style={{color:"#1565C0"}}>Browse Help Center</a>
-            </div>
+            <button onClick={function() { setStep(0); }} className="text-sm mt-4 font-medium" style={{color:"#00897B"}}>
+              Back to order selection
+            </button>
           </div>
         )}
 
@@ -163,8 +249,6 @@ function TicketForm() {
               placeholder="Example: My refund was not received after 7 days..."
               value={description}
               onChange={function(e) { setDescription(e.target.value); }}
-              onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
-              onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
             />
 
             {match && (
@@ -230,6 +314,15 @@ function TicketForm() {
             </button>
             <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Review your ticket</h2>
             <p className="text-sm mb-6" style={{color:"#9E9E9E"}}>Make sure everything looks correct</p>
+
+            {selectedOrder && (
+              <div className="bg-white border-2 rounded-xl p-4 mb-4" style={{borderColor:"#EEEEEE"}}>
+                <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>ORDER ATTACHED</p>
+                <p className="font-semibold mt-1" style={{color:"#212121"}}>{selectedOrder.project_name}</p>
+                <p className="text-sm mt-0.5" style={{color:"#9E9E9E"}}>{selectedOrder.order_id} · {selectedOrder.freelancer_name} · ₹{selectedOrder.amount}</p>
+              </div>
+            )}
+
             <div className="bg-white border-2 rounded-xl overflow-hidden mb-6" style={{borderColor:"#EEEEEE"}}>
               <div className="p-4 border-b" style={{borderColor:"#EEEEEE"}}>
                 <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>CATEGORY</p>
@@ -246,6 +339,7 @@ function TicketForm() {
                 </div>
               )}
             </div>
+
             <div className="rounded-xl p-4 mb-6 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="font-semibold text-sm" style={{color:"#00695C"}}>AI Triage Preview</p>
               <div className="grid grid-cols-2 gap-3 mt-3">
@@ -259,6 +353,7 @@ function TicketForm() {
                 </div>
               </div>
             </div>
+
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
@@ -282,13 +377,14 @@ function TicketForm() {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="text-center py-8">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{backgroundColor:"#E0F2F1"}}>
               <span className="text-4xl">✅</span>
             </div>
             <h2 className="text-2xl font-bold" style={{color:"#212121"}}>Ticket Submitted!</h2>
             <p className="mt-2" style={{color:"#9E9E9E"}}>Your issue has been received and analyzed</p>
+
             <div className="rounded-xl p-4 mt-4 border flex items-start gap-3" style={{backgroundColor:"#E3F2FD",borderColor:"#90CAF9"}}>
               <span className="text-2xl">📧</span>
               <div className="text-left">
@@ -296,10 +392,12 @@ function TicketForm() {
                 <p className="text-xs mt-1" style={{color:"#1976D2"}}>A confirmation has been sent to your registered email address with your ticket details.</p>
               </div>
             </div>
+
             <div className="rounded-xl p-4 mt-4 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="text-xs font-semibold" style={{color:"#00695C"}}>YOUR TICKET ID</p>
               <p className="text-3xl font-bold mt-1" style={{color:"#00897B"}}>{ticketId}</p>
             </div>
+
             <div className="bg-white border-2 rounded-xl mt-4 text-left overflow-hidden" style={{borderColor:"#EEEEEE"}}>
               <div className="p-4 border-b flex items-center gap-3" style={{borderColor:"#EEEEEE"}}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{backgroundColor:"#E8F5E9", color:"#2E7D32"}}>1</div>
@@ -323,9 +421,10 @@ function TicketForm() {
                 </div>
               </div>
             </div>
+
             <div className="flex gap-3 mt-6">
               <button
-                onClick={function() { setStep(1); setDescription(""); setSelected(""); setScreenshot(null); setScreenshotFile(null); setScreenshotName(""); }}
+                onClick={function() { setStep(0); setDescription(""); setSelected(""); setScreenshot(null); setScreenshotFile(null); setScreenshotName(""); setSelectedOrder(null); }}
                 className="flex-1 border-2 py-3 rounded-xl font-semibold text-sm"
                 style={{borderColor:"#00897B", color:"#00897B"}}
               >

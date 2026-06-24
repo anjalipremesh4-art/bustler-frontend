@@ -1,5 +1,25 @@
 const BASE_URL = "https://bustler-pulse.onrender.com";
 
+export async function getUserOrders() {
+  const userId = localStorage.getItem("bustler_user_id") || "user-001";
+  try {
+    const response = await fetch(BASE_URL + "/tickets/orders/" + userId);
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data && Array.isArray(data.orders)) {
+      return data.orders;
+    }
+    if (data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
 export async function getUserContext() {
   const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
