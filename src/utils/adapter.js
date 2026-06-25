@@ -56,7 +56,7 @@ export async function uploadScreenshot(file) {
   }
 }
 
-export async function createTicket(category, description, screenshotUrl) {
+export async function createTicket(category, description, screenshotUrl, order) {
   const userId = localStorage.getItem("bustler_user_id") || "user-001";
   try {
     const body = {
@@ -68,6 +68,11 @@ export async function createTicket(category, description, screenshotUrl) {
     };
     if (screenshotUrl) {
       body.screenshot_url = screenshotUrl;
+    }
+    if (order) {
+      body.order_id = order.order_id || null;
+      body.order_amount = order.amount || null;
+      body.freelancer_name = order.freelancer_name || null;
     }
     const response = await fetch(BASE_URL + "/tickets/", {
       method: "POST",
@@ -152,6 +157,9 @@ export function adaptTicket(backendTicket, index) {
     priority: urgencyToPriority(backendTicket.urgency_score),
     steps: adaptSteps(backendTicket.status || "open"),
     screenshotUrl: backendTicket.screenshot_url || null,
+    orderId: backendTicket.order_id || null,
+    orderAmount: backendTicket.order_amount || null,
+    freelancerName: backendTicket.freelancer_name || null,
   };
 }
 

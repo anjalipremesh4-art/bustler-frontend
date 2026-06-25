@@ -61,7 +61,7 @@ function TicketForm() {
     if (screenshotFile) {
       screenshotUrl = await uploadScreenshot(screenshotFile);
     }
-    const result = await createTicket(selected, description, screenshotUrl);
+    const result = await createTicket(selected, description, screenshotUrl, selectedOrder);
     setTicketId(result.ticketId);
     setIsSubmitting(false);
     setStep(5);
