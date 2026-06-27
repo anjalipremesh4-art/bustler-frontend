@@ -84,6 +84,17 @@ function TicketTracker() {
             </div>
           </div>
 
+          {(selectedTicket.orderId || selectedTicket.freelancerName) && (
+            <div className="bg-white rounded-xl p-4 mb-4 border-2" style={{ borderColor: "#EEEEEE" }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: "#616161" }}>Order Attached</p>
+              <div className="space-y-1 text-sm" style={{ color: "#212121" }}>
+                {selectedTicket.orderId && <p>Order ID: {selectedTicket.orderId}</p>}
+                {selectedTicket.freelancerName && <p>Freelancer: {selectedTicket.freelancerName}</p>}
+                {selectedTicket.orderAmount && <p>Amount: ₹{selectedTicket.orderAmount}</p>}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-xl p-4 mb-4 border-2" style={{ borderColor: "#EEEEEE" }}>
             <p className="text-sm font-semibold mb-1" style={{ color: "#616161" }}>Issue Description</p>
             <p style={{ color: "#212121" }}>{selectedTicket.description}</p>
@@ -102,6 +113,15 @@ function TicketTracker() {
               </div>
             </div>
           </div>
+
+          {selectedTicket.autoReply && (
+            <div className="rounded-xl p-4 mb-4 border" style={{ backgroundColor: "#E3F2FD", borderColor: "#90CAF9" }}>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: "#1565C0" }}>
+                🤖 AI Auto-Reply
+              </p>
+              <p className="text-sm" style={{ color: "#1976D2" }}>{selectedTicket.autoReply}</p>
+            </div>
+          )}
 
           {selectedTicket.priority === "P1" && selectedTicket.status !== "Resolved" && (
             <div className="rounded-xl p-4 mb-4 flex gap-3 border" style={{ backgroundColor: "#FFEBEE", borderColor: "#FFCDD2" }}>
