@@ -1,7 +1,47 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getAllTickets } from "../utils/adapter";
+
+function parseDate(d) {
+  if (!d) return 0;
+  const parts = d.split("/");
+  if (parts.length === 3) {
+    return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+  }
+  const t = new Date(d).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
+const statusStyles = {
+  "Open": { backgroundColor: "#FFF3E0", color: "#E65100" },
+  "In Progress": { backgroundColor: "#E3F2FD", color: "#1565C0" },
+  "On Hold": { backgroundColor: "#FFF3E0", color: "#E65100" },
+  "Resolved": { backgroundColor: "#E8F5E9", color: "#2E7D32" },
+};
 
 function HomePage() {
   const navigate = useNavigate();
+  const [recentTickets, setRecentTickets] = useState([]);
+  const [totalCount, setTotalCount] = useState(9);
+  const [resolvedCount, setResolvedCount] = useState(3);
+  const [criticalCount, setCriticalCount] = useState(4);
+
+  useEffect(function() {
+    getAllTickets().then(function(data) {
+      if (data && data.length > 0) {
+        const sorted = data.slice().sort(function(a, b) {
+          const dateDiff = parseDate(b.date) - parseDate(a.date);
+          if (dateDiff !== 0) return dateDiff;
+          return parseInt(b.id) - parseInt(a.id);
+        });
+        setRecentTickets(sorted.slice(0, 3));
+        setTotalCount(sorted.length);
+        setResolvedCount(sorted.filter(function(t) { return t.status === "Resolved"; }).length);
+        setCriticalCount(sorted.filter(function(t) { return t.priority === "P1"; }).length);
+      }
+    });
+  }, []);
+
   return (
     <div style={{backgroundColor:"#F5F5F5"}} className="min-h-screen">
 
@@ -18,9 +58,9 @@ function HomePage() {
 
       <div className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto grid grid-cols-3 divide-x">
-          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#00897B"}}>9</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Issues Tracked</p></div>
-          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#43A047"}}>3</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Resolved</p></div>
-          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#E53935"}}>4</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Critical P1</p></div>
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#00897B"}}>{totalCount}</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Issues Tracked</p></div>
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#43A047"}}>{resolvedCount}</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Resolved</p></div>
+          <div className="py-6 text-center"><p className="text-3xl font-bold" style={{color:"#E53935"}}>{criticalCount}</p><p className="text-sm mt-1" style={{color:"#9E9E9E"}}>Critical P1</p></div>
         </div>
       </div>
 
@@ -79,19 +119,23 @@ function HomePage() {
 
         <h2 className="text-xl font-bold mb-4" style={{color:"#212121"}}>Recent Activity</h2>
         <div className="space-y-3">
-          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
-            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1000</p><p className="text-sm mt-1" style={{color:"#424242"}}>App crashed after selecting plus menu</p></div>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#E3F2FD",color:"#1565C0"}}>In Progress</span>
-          </div>
-          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
-            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1003</p><p className="text-sm mt-1" style={{color:"#424242"}}>Unable to make payment in the app</p></div>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#FFF3E0",color:"#E65100"}}>On Hold</span>
-          </div>
-          <div onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
-            <div><p className="text-xs font-semibold" style={{color:"#00897B"}}>TKT-1007</p><p className="text-sm mt-1" style={{color:"#424242"}}>Last name validation error on sign up</p></div>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor:"#E8F5E9",color:"#2E7D32"}}>Resolved</span>
-          </div>
-          <button onClick={function(){navigate("/tracker");}} className="w-full text-center text-sm py-2 font-medium" style={{color:"#00897B"}}>View all 9 issues</button>
+          {recentTickets.length === 0 && (
+            <p className="text-sm text-center py-4" style={{color:"#9E9E9E"}}>Loading recent activity...</p>
+          )}
+          {recentTickets.map(function(ticket) {
+            return (
+              <div key={ticket.id} onClick={function(){navigate("/tracker");}} className="bg-white border-2 rounded-xl p-4 flex justify-between items-center cursor-pointer" style={{borderColor:"#EEEEEE"}}>
+                <div>
+                  <p className="text-xs font-semibold" style={{color:"#00897B"}}>{ticket.id}</p>
+                  <p className="text-sm mt-1" style={{color:"#424242"}}>{ticket.description}</p>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-medium" style={statusStyles[ticket.status] || {backgroundColor:"#EEEEEE",color:"#616161"}}>
+                  {ticket.status}
+                </span>
+              </div>
+            );
+          })}
+          <button onClick={function(){navigate("/tracker");}} className="w-full text-center text-sm py-2 font-medium" style={{color:"#00897B"}}>View all {totalCount} issues</button>
         </div>
 
       </div>

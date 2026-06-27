@@ -124,14 +124,8 @@ function Footer() {
             </div>
           </div>
           <div>
-            <p className="font-semibold mb-3" style={{ color: "#BDBDBD" }}>Built By</p>
-            <div className="space-y-2">
-              <p style={{ color: "#9E9E9E" }} className="text-sm">Anjali — User Layer</p>
-              <p style={{ color: "#9E9E9E" }} className="text-sm">Ambadi — Ops Layer</p>
-              <p style={{ color: "#9E9E9E" }} className="text-sm">Adhilekshmi — Intelligence</p>
-            </div>
+            
             <div className="mt-4">
-              <p style={{ color: "#9E9E9E" }} className="text-xs">Providence College of Engineering</p>
               <p style={{ color: "#9E9E9E" }} className="text-xs mt-0.5">Bustler Summer Internship 2026</p>
             </div>
           </div>
