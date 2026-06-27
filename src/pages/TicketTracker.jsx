@@ -159,7 +159,7 @@ function TicketTracker() {
                 This issue was successfully resolved by the Bustler support team.
               </p>
               
-              <a  href="/survey"
+              <a href={"/survey/" + selectedTicket.id}
                 className="inline-block mt-4 text-white px-6 py-2 rounded-xl text-sm font-semibold"
                 style={{ backgroundColor: "#00897B" }}
               >
