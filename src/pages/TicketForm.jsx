@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { createTicket, getUserContext, getUserOrders, uploadScreenshot } from "../utils/adapter";
 
 const categories = [
-  { label: "Payment Issue", icon: "💳", desc: "Refunds, failed payments, billing" },
-  { label: "Technical Bug", icon: "🐛", desc: "App crashes, errors, glitches" },
-  { label: "Freelancer Problem", icon: "👤", desc: "Unresponsive, quality issues" },
-  { label: "Booking Issue", icon: "📅", desc: "Time slots, scheduling problems" },
-  { label: "Account Issue", icon: "🔐", desc: "Login, signup, profile problems" },
-  { label: "Other", icon: "❓", desc: "Something else entirely" },
+  { label: "Payment Issue", value: "payment", icon: "💳", desc: "Refunds, failed payments, billing" },
+  { label: "Technical Bug", value: "technical", icon: "🐛", desc: "App crashes, errors, glitches" },
+  { label: "Freelancer Problem", value: "quality", icon: "👤", desc: "Unresponsive, quality issues" },
+  { label: "Booking Issue", value: "delivery", icon: "📅", desc: "Time slots, scheduling problems" },
+  { label: "Account Issue", value: "account", icon: "🔐", desc: "Login, signup, profile problems" },
+  { label: "Other", value: "other", icon: "❓", desc: "Something else entirely" },
 ];
 
 const smartSuggestions = [
@@ -22,7 +22,7 @@ const smartSuggestions = [
 
 function TicketForm() {
   const [step, setStep] = useState(0);
-  const [selected, setSelected] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState("");
   const [ticketId, setTicketId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,9 +38,6 @@ function TicketForm() {
   useEffect(function() {
     getUserContext().then(function(data) {
       setContext(data);
-      if (data && data.lastCategory) {
-        setSelected(data.lastCategory);
-      }
     });
   }, []);
 
@@ -61,7 +58,12 @@ function TicketForm() {
     if (screenshotFile) {
       screenshotUrl = await uploadScreenshot(screenshotFile);
     }
-    const result = await createTicket(selected, description, screenshotUrl, selectedOrder);
+    const result = await createTicket(
+      selectedCategory.value,
+      description,
+      screenshotUrl,
+      selectedOrder
+    );
     setTicketId(result.ticketId);
     setIsSubmitting(false);
     setStep(5);
@@ -166,7 +168,7 @@ function TicketForm() {
               </button>
               <button
                 onClick={function() { setStep(1); }}
-                disabled={!selectedOrder}
+                disabled={!selectedOrder && orders.length > 0 && !loadingOrders}
                 className="flex-1 text-white py-3 rounded-xl font-semibold text-sm"
                 style={{backgroundColor: selectedOrder ? "#00897B" : "#BDBDBD"}}
               >
@@ -213,10 +215,12 @@ function TicketForm() {
               {categories.map(function(cat) {
                 return (
                   <button
-                    key={cat.label}
-                    onClick={function() { setSelected(cat.label); setStep(2); }}
+                    key={cat.value}
+                    onClick={function() { setSelectedCategory(cat); setStep(2); }}
                     className="bg-white border-2 rounded-xl p-4 text-left transition-all"
-                    style={{borderColor: selected === cat.label ? "#00897B" : "#EEEEEE"}}
+                    style={{borderColor: selectedCategory && selectedCategory.value === cat.value ? "#00897B" : "#EEEEEE"}}
+                    onMouseEnter={function(e) { e.currentTarget.style.borderColor="#00897B"; e.currentTarget.style.backgroundColor="#E0F2F1"; }}
+                    onMouseLeave={function(e) { e.currentTarget.style.borderColor=selectedCategory&&selectedCategory.value===cat.value?"#00897B":"#EEEEEE"; e.currentTarget.style.backgroundColor="white"; }}
                   >
                     <div className="text-2xl mb-2">{cat.icon}</div>
                     <p className="font-semibold text-sm" style={{color:"#212121"}}>{cat.label}</p>
@@ -239,7 +243,7 @@ function TicketForm() {
             </button>
             <div className="rounded-xl p-3 mb-4 border" style={{backgroundColor:"#E0F2F1", borderColor:"#80CBC4"}}>
               <p className="text-xs font-semibold" style={{color:"#00695C"}}>Selected category</p>
-              <p className="font-bold text-sm mt-0.5" style={{color:"#00897B"}}>{selected}</p>
+              <p className="font-bold text-sm mt-0.5" style={{color:"#00897B"}}>{selectedCategory && selectedCategory.label}</p>
             </div>
             <h2 className="text-lg font-bold mb-1" style={{color:"#212121"}}>Describe your issue</h2>
             <p className="text-sm mb-4" style={{color:"#9E9E9E"}}>Be as specific as possible</p>
@@ -249,6 +253,8 @@ function TicketForm() {
               placeholder="Example: My refund was not received after 7 days..."
               value={description}
               onChange={function(e) { setDescription(e.target.value); }}
+              onFocus={function(e) { e.target.style.borderColor="#00897B"; }}
+              onBlur={function(e) { e.target.style.borderColor="#EEEEEE"; }}
             />
 
             {match && (
@@ -326,7 +332,7 @@ function TicketForm() {
             <div className="bg-white border-2 rounded-xl overflow-hidden mb-6" style={{borderColor:"#EEEEEE"}}>
               <div className="p-4 border-b" style={{borderColor:"#EEEEEE"}}>
                 <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>CATEGORY</p>
-                <p className="font-semibold mt-1" style={{color:"#212121"}}>{selected}</p>
+                <p className="font-semibold mt-1" style={{color:"#212121"}}>{selectedCategory && selectedCategory.label}</p>
               </div>
               <div className="p-4 border-b" style={{borderColor:"#EEEEEE"}}>
                 <p className="text-xs font-semibold" style={{color:"#9E9E9E"}}>DESCRIPTION</p>
@@ -345,7 +351,7 @@ function TicketForm() {
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <div className="bg-white rounded-lg p-3">
                   <p className="text-xs" style={{color:"#9E9E9E"}}>Detected Category</p>
-                  <p className="font-semibold text-sm mt-1" style={{color:"#212121"}}>{selected}</p>
+                  <p className="font-semibold text-sm mt-1" style={{color:"#212121"}}>{selectedCategory && selectedCategory.label}</p>
                 </div>
                 <div className="bg-white rounded-lg p-3">
                   <p className="text-xs" style={{color:"#9E9E9E"}}>Estimated Response</p>
@@ -410,7 +416,7 @@ function TicketForm() {
                 <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{backgroundColor:"#E8F5E9", color:"#2E7D32"}}>2</div>
                 <div>
                   <p className="font-semibold text-sm" style={{color:"#212121"}}>AI analysis complete</p>
-                  <p className="text-xs" style={{color:"#9E9E9E"}}>Category: {selected}</p>
+                  <p className="text-xs" style={{color:"#9E9E9E"}}>Category: {selectedCategory && selectedCategory.label}</p>
                 </div>
               </div>
               <div className="p-4 flex items-center gap-3">
@@ -424,14 +430,14 @@ function TicketForm() {
 
             <div className="flex gap-3 mt-6">
               <button
-                onClick={function() { setStep(0); setDescription(""); setSelected(""); setScreenshot(null); setScreenshotFile(null); setScreenshotName(""); setSelectedOrder(null); }}
+                onClick={function() { setStep(0); setDescription(""); setSelectedCategory(null); setScreenshot(null); setScreenshotFile(null); setScreenshotName(""); setSelectedOrder(null); }}
                 className="flex-1 border-2 py-3 rounded-xl font-semibold text-sm"
                 style={{borderColor:"#00897B", color:"#00897B"}}
               >
                 Submit Another
               </button>
               
-               <a href="/tracker"
+              <a  href="/tracker"
                 className="flex-1 text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center"
                 style={{backgroundColor:"#00897B"}}
               >
